@@ -1,0 +1,211 @@
+@import "./_reset.css";
+@import "./constants.css";
+
+html {
+  font-family: sans-serif;
+  font-size: 16px;
+}
+
+body {
+  width: 100vw;
+}
+
+
+/* HEADER */
+
+header {
+  background-color: var(--color-main-red);
+  color: var(--color-main-text-light);
+  font-size: 1.8rem;
+  font-weight: 800;
+  height: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: .5rem 0;
+  margin-bottom: 1rem;
+}
+
+
+/* ALL SECTIONS */
+
+section {
+  margin: .5rem;
+}
+
+
+/* SECTION DRIVING ZONES */
+
+#driving-zone {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.public-hand {
+  background-color: var(--color-section-background);
+  border-radius: .5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.public-hand .name {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: .5rem auto;
+}
+
+.safety,
+.distance,
+.driving {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: .6rem;
+  margin-bottom: .5rem;
+}
+
+.distance {
+  justify-content: space-around;
+  width: 100%;
+}
+
+.safety .off {
+  opacity: .2;
+}
+
+.safety .on {
+  opacity: 1;
+}
+
+.safety .coup-fourre {
+  background-color: lightskyblue;
+  border-radius: 20%;
+}
+
+.safety img,
+.distance img {
+  margin: .2rem;
+  width: 2rem;
+}
+
+.distance .km-counter {
+  border: 2px solid var(--color-distance-counters);
+  border-radius: 50% 50% 0 0;
+  font-size: 2rem;
+  font-weight: 800;
+  padding: .2rem 1rem;
+}
+
+.distance .swallow-counter {
+  color: var(--color-distance-counters);
+  font-size: 1.2rem;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+}
+
+.driving img {
+  width: 3rem;
+}
+
+
+/* SECTION BOARD */
+
+#board {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4rem;
+  margin: 2rem;
+}
+
+#board img {
+  width: 5rem;
+}
+
+
+/* SECTION HANDS */
+
+#hands {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#player1-hand,
+#player2-hand {
+  background-color: var(--color-section-background);
+  border-radius: .5rem;
+  padding: 1rem;
+  margin-bottom: 2rem;
+}
+
+#hands .submit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#hands .name {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.submit button {
+  background-color: var(--color-main-text-light);
+  border: 2px solid var(--color-main-red);
+  border-radius: 5px;
+  padding: .5rem;
+}
+
+#hands p {
+  font-weight: 600;
+  margin-top: .5rem;
+}
+
+#hands img {
+  width: 3rem;
+}
+
+#hands input {
+  accent-color: var(--color-main-text-dark);
+}
+
+.action {
+  display: flex;
+  justify-content: flex-start;
+}
+
+#p1-new-card,
+#p2-new-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: .5rem;
+}
+
+#p1-old-cards,
+#p2-old-cards {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: .5rem;
+  gap: .6rem;
+}
+
+.card.highlight img {
+  border: 1px solid var(--color-main-red);
+  border-radius: 5px;
+}
+
+
+
+
+
+
+

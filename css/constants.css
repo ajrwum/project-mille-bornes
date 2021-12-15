@@ -1,0 +1,14 @@
+:root {
+  --color-main-red: #E4222F;
+  --color-main-text-dark: black;
+  --color-main-text-light: whitesmoke;
+  
+  --color-section-background: #D6D6D6;
+  --color-distance-counters: lightslategrey;
+
+  --color-remedy: green;
+
+  --color-hazard: red;
+
+  --color-safety: lightskyblue;
+}

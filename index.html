@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>1000 Bornes</title>
+    <link rel="stylesheet" href="./css/index.css">
+    <script src="./js/index.js" type="module"></script>
+  </head> 
+  <body>
+    <div id="app">
+      <header><p>1000 BORNES</p></header>
+      <section id="intro">
+        <p>Welcome to 1000 Bornes, a fun French game!</p>
+      </section>
+      <section id="players">
+        <div id="instruction">
+          <p>This version involves 2 players using cards to apply strategy while trying to be the first to reach the destination.</p>
+          <p>How far is the destination is set by choosing the game mode.</p>
+        </div>
+        <div id="memo">
+          <img src="./img/memo.png" alt="memo card">
+        </div>
+        <div>
+          <p>Please enter the 2 players' name and age.</p>
+        </div>
+        <div id="player1">
+          <div>
+            <p>Player 1</p>
+          </div>
+          <div>
+            <input type="text" name="p1-firstname" id="p1-firstname" placeholder="1st player's name">
+            <input type="text" name="p1-age" id="p1-age" placeholder="1st player's age">
+          </div>
+        </div>
+        <div id="player2">
+          <div>
+            <p>Player 2</p>
+          </div>
+          <div>
+            <input type="text" name="p2-firstname" id="p2-firstname" placeholder="2nd player's name">
+            <input type="text" name="p2-age" id="p2-age" placeholder="2nd player's age">
+          </div>
+        </div>
+        <div id="error-msg"><span></span></div>
+      </section>
+      <section id="mode">
+        <div>
+          <p>To get to your destination, you can opt for the Shortcut (400 miles), the Interstate (700 miles) or the Scenic Route (1000 miles).</p>
+        </div>
+        <div class="mode">
+          <div>
+            <input type="radio" name="game-mode" id="shortcut">
+            <label for="drive">Shortcut</label>
+          </div>
+          <div>
+            <input type="radio" name="game-mode" id="interstate">
+            <label for="defend">Interstate</label>
+          </div>
+          <div>
+            <input type="radio" name="game-mode" id="scenicroute">
+            <label for="attack">Scenic Route</label>
+          </div>
+        </div>
+      </section>
+      <section id="roll">
+        <div id="link"><p>Input the players' data and choose the road to follow.</p></div>
+      </section>
+    </div>
+  </body>
+</html>

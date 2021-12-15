@@ -1,0 +1,28 @@
+@import "./_reset.css";
+@import "./constants.css";
+
+html {
+  font-family: sans-serif;
+  font-size: 16px;
+}
+
+body {
+  width: 100vw;
+}
+
+
+/* HEADER */
+
+header {
+  background-color: var(--color-main-red);
+  color: var(--color-main-text-light);
+  font-size: 1.8rem;
+  font-weight: 800;
+  height: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: .5rem 0;
+  margin-bottom: 1rem;
+}
+

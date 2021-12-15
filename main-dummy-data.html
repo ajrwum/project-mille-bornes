@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>1000 Bornes</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <script src="./js/main.js" type="module"></script>
+  </head> 
+  <body>
+    <div id="app">
+      <header><p>1000 BORNES</p></header>
+      <section id="driving-zone">
+        <div id="player1-play" class="public-hand">
+          <div class="name"><span>PAULA</span></div>
+          <div class="safety blue">
+            <div class="off"> <img src="./img/icon-ev-2.png" alt="emergency vehicle safety"> </div>
+            <div class="on"> <img src="./img/icon-ft-2.png" alt="fuel tank safety"> </div>
+            <div class="on coup-fourre"> <img src="./img/icon-pp-2.png" alt="puncture proof safety"> </div>
+            <div class="off"> <img src="./img/icon-da-2.png" alt="driving ace safety"> </div>
+          </div>
+          <div class="distance">
+            <div class="km-counter"><span>310</span></div>
+            <div class="swallow-counter">0</div>
+          </div>
+          <div class="driving">
+            <div class="speed"> <img src="./img/hazard-speed.png" alt="hazard speed limit"> </div>
+            <div class="battle"> <img src="./img/remedy-drive.png" alt="remedy drive"> </div>
+          </div>
+        </div>
+        <div id="player2-play" class="public-hand">
+          <div class="name">JACK</div>
+          <div class="safety blue">
+            <div class="off"> <img src="./img/icon-ev-2.png" alt="emergency vehicle safety"> </div>
+            <div class="off"> <img src="./img/icon-ft-2.png" alt="fuel tank safety"> </div>
+            <div class="off"> <img src="./img/icon-pp-2.png" alt="puncture proof safety"> </div>
+            <div class="on"> <img src="./img/icon-da-2.png" alt="driving ace safety"> </div>
+          </div>
+          <div class="distance">
+            <div class="km-counter">240</div>
+            <div class="swallow-counter">1</div>
+          </div>
+          <div class="driving">
+            <div class="speed"> <img src="./img/no-card.png" alt="no card yet"> </div>
+            <div class="battle"> <img src="./img/hazard-tire.png" alt="hazard flat tire"> </div>
+          </div>
+        </div>
+      </section>
+      <section id="board">
+        <div id="drawing-pile" class="card"> <img src="./img/turned-card-decor.png" alt="back of card"> </div>
+        <div id="discard-pile" class="card"> <img src="./img/no-card.png" alt="no card yet"> </div>
+      </section>
+      <section id="hands">
+        <div id="error-msg"><span></span></div>
+        <div id="player1-hand">
+          <div class="submit">
+            <div class="name">PAULA'S TURN</div>
+            <div><button>Let's Drive</button></div>
+          </div>
+          <div id="play1">
+            <div>
+              <p>Choose an action:</p>
+            </div>
+            <div class="action">
+              <div>
+                <input type="radio" name="action-player1" id="drive" checked>
+                <label for="drive">Drive</label>
+              </div>
+              <div>
+                <input type="radio" name="action-player1" id="defend">
+                <label for="defend">Defend</label>
+              </div>
+              <div>
+                <input type="radio" name="action-player1" id="attack">
+                <label for="attack">Attack</label>
+              </div>
+              <div>
+                <input type="radio" name="action-player1" id="discard">
+                <label for="discard">Discard</label>
+              </div>
+            </div>
+            <div class="hand">
+              <div id="p1-new-card">
+                <div><p>Then a card:</p></div>
+                <div class="card"> <img src="./img/no-card.png" alt="no card yet"> </div>
+              </div>
+              <div id="p1-old-cards">
+                <div class="card"> <img src="./img/no-card.png" alt="no card yet"> </div>
+                <div class="card"> <img src="./img/no-card.png" alt="no card yet"> </div>
+                <div class="card"> <img src="./img/no-card.png" alt="no card yet"> </div>
+                <div class="card"> <img src="./img/no-card.png" alt="no card yet"> </div>
+                <div class="card"> <img src="./img/no-card.png" alt="no card yet"> </div>
+                <div class="card"> <img src="./img/no-card.png" alt="no card yet"> </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="player2-hand">
+          <div class="submit">
+            <div class="name">JACK'S TURN</div>
+            <div><button>Let's Drive</button></div>
+          </div>
+          <div id="play2">
+            <div>
+              <p>Choose an action:</p>
+            </div>
+            <div class="action">
+              <div>
+                <input type="radio" name="action-player2" id="drive" checked>
+                <label for="drive">Drive</label>
+              </div>
+              <div>
+                <input type="radio" name="action-player2" id="defend">
+                <label for="defend">Defend</label>
+              </div>
+              <div>
+                <input type="radio" name="action-player2" id="attack">
+                <label for="attack">Attack</label>
+              </div>
+              <div>
+                <input type="radio" name="action-player2" id="discard">
+                <label for="discard">Discard</label>
+              </div>
+            </div>
+            <div class="hand">
+              <div id="p2-new-card">
+                <div><p>Then a card:</p></div>
+                <div class="card"> <img src="./img/no-card.png" alt="no card yet"> </div>
+              </div>
+              <div id="p2-old-cards">
+                <div class="card"> <img src="./img/no-card.png" alt="no card yet"> </div>
+                <div class="card"> <img src="./img/no-card.png" alt="no card yet"> </div>
+                <div class="card"> <img src="./img/no-card.png" alt="no card yet"> </div>
+                <div class="card"> <img src="./img/no-card.png" alt="no card yet"> </div>
+                <div class="card"> <img src="./img/no-card.png" alt="no card yet"> </div>
+                <div class="card"> <img src="./img/no-card.png" alt="no card yet"> </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
