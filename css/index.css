@@ -26,3 +26,100 @@ header {
   margin-bottom: 1rem;
 }
 
+
+/* ALL SECTIONS */
+
+section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  row-gap: .7rem;
+  margin: .5rem;
+}
+
+img {
+  width: 20rem;
+}
+
+
+/* SECTION INTRO */
+
+#intro p {
+  font-size: 2rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+
+/* SECTION PLAYERS */
+
+#players {
+  text-align: center;
+}
+
+#memo {
+  margin: 2rem inherit;
+}
+
+#instruction p {
+  line-height: 1.2rem;
+}
+
+#player1,
+#player2 {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: .5rem;
+}
+
+#input-text {
+  font-weight: 800;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+
+/* SECTION MODE */
+
+#play-mode p {
+  line-height: 1.2rem;
+  text-align: center;
+}
+
+#mode .mode {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#mode input {
+  accent-color: var(--color-main-text-dark);
+}
+
+/* SECTION GO */
+
+#go {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+a#roll {
+  background-color: var(--color-main-red);
+  border-radius: 5px;
+  color: var(--color-main-text-light);
+  line-height: 2rem;
+  padding: .5rem 1.5rem;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+#display-msg {
+  background-color: var(--color-section-background);
+  border-radius: 5px;
+  color: var(--color-main-red);
+  font-weight: 600;
+  line-height: 2rem;
+  width: 80vw;
+}

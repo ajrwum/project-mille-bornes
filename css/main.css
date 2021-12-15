@@ -204,6 +204,17 @@ section {
 }
 
 
+/* DISPLAY MESSAGE */
+
+#display-msg {
+  background-color: var(--color-section-background);
+  border-radius: 5px;
+  color: var(--color-main-red);
+  font-weight: 600;
+  line-height: 2rem;
+  width: 80vw;
+}
+
 
 
 

@@ -1,6 +1,6 @@
 // all imports
 import { GAME_INIT_DEFAULT, STORAGE_NAME } from "./data.js";
-import { messages, displayMsg } from "./messages.js";
+import { messages, displayMsg, resetMsg } from "./messages.js";
 
 // storage to pass, set with default values
 let storage = {
@@ -46,6 +46,7 @@ const rollBtn = document.getElementById('link');
 const gameMode = document.querySelector('#mode .mode');
 gameMode.addEventListener('click', (event) => {
   if (areAllInputsForPlayersOkAndStored(event.target)) {
+    resetMsg();
     // adding the link to the game page
     rollBtn.innerHTML = `<a id="roll" href="./main.html">LET'S ROLL!</a>`;
   }

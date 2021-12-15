@@ -6,6 +6,7 @@ import { ID_P1, ID_P2, GAME_INIT_DEFAULT, PLAYER_ACTION,
 import { cards, noCard, turnedCard } from "./cards.js";
 import { Board } from "./board.js";
 import { Player } from "./player.js";
+import { messages, displayMsg, resetMsg } from "./messages.js";
 
 console.log('=== 1000 Bornes - main.js - debug log ===');
 
@@ -21,6 +22,9 @@ let currentActionCard = {
   playAction: PLAYER_ACTION.drive,
   playCard: noCard
 };
+
+// init the timeoutId
+let timeoutId;
 
 // init current and next player id (1 to begin the game)
 let currentPlayerId = 1;
@@ -105,6 +109,17 @@ function dealCardsToPlayers(cards) {
 // to draw a card from the drawing pile to complete player's hand before play
 function drawCardFromDrawingPile(player) {
   console.log('--- drawCardFromDrawingPile');
+
+
+  // // adapting depending on how many cards clicked
+  // if (memoryGame.pickedCards.length === 2) {
+    //   // setting timeout to be able to see both cards turned
+    //   timeoutId = setTimeout(() => {
+      //     checkClickedPair();
+      //   }, TIMEOUT_DURATION);
+      // }
+      
+
   // drawing a card, placing it into the playPile (game history) and in the player hand
   const drawnCard = board.drawingPile.shift();
   board.playPile.unshift(drawnCard);
@@ -127,6 +142,124 @@ function highlightLastChosenCard(target) {
   currentActionCard.playCard = getCurrentPlayer().handPile.find(card => card.id === cardId);
 }
 
+// to update the game when the played card is a safety card
+function playWithSafetyCard(playedCard) {
+  console.log(`--- playWithSafetyCard: playedCard`, playedCard);
+  // always allowed whatever the action (drive, defend or attack)
+  
+  const currentPlayer = getCurrentPlayer();
+  const secondPlayer = getSecondPlayer();
+  const cardIndexInHandPile = currentPlayer.handPile.indexOf(playedCard);
+  console.log(`cardIndexInHandPile`, cardIndexInHandPile);
+  
+  
+  console.log('safety card ok');
+  // testing the coup fourre considering the last card played
+  let isCoupFourre = false;
+  if (board.playPile.length > 0 && board.playPile[0].type === 'hazard') {
+    if (playedCard.name === 'ev' && board.playPile[0].name === 'stop') isCoupFourre = true;
+    else if (playedCard.name === 'ev' && board.playPile[0].name === 'speed') isCoupFourre = true;
+    else if (playedCard.name === 'ft' && board.playPile[0].name === 'gas') isCoupFourre = true;
+    else if (playedCard.name === 'pp' && board.playPile[0].name === 'tire') isCoupFourre = true;
+    else if (playedCard.name === 'da' && board.playPile[0].name === 'accident') isCoupFourre = true;
+  }
+  // - removing this card from player's hand and saving it into play history
+  const safetyCard = currentPlayer.handPile.splice(cardIndexInHandPile, 1)[0];
+  board.playPile.unshift(safetyCard);
+  // - adding this card into the discard pile
+  currentPlayer.safetyPile.unshift(safetyCard);
+  // - updating safety status for the player
+  currentPlayer.updateSafetyStatus(isCoupFourre);
+  console.log(`currentPlayer`, currentPlayer);
+  
+  // - discarding, if necessary, the nulled hazard card from the player's battle or speed pile
+  let hazardCardToDiscard;
+  if (currentPlayer.speedPile.length > 0) {
+    console.log("player's speedPile not empty");
+    if (currentPlayer.speedPile[0].type === 'hazard') {
+      console.log("last card on speedPile = hazard");
+      if (currentPlayer.speedPile[0].name === 'speed' && playedCard.name === 'ev') {
+        console.log("last card on speedPile = speed & safety = ev");
+        hazardCardToDiscard = currentPlayer.speedPile.splice(cardIndexInHandPile, 1)[0];
+      }
+    }
+  }
+  if (currentPlayer.battlePile.length > 0) {
+    if (currentPlayer.battlePile[0].type === 'hazard') {
+      if ((currentPlayer.battlePile[0].name === 'stop' && playedCard.name === 'ev')
+          || (currentPlayer.battlePile[0].name === 'gas' && playedCard.name === 'ft')
+          || (currentPlayer.battlePile[0].name === 'tire' && playedCard.name === 'pp')
+          || (currentPlayer.battlePile[0].name === 'accident' && playedCard.name === 'da')) {
+        hazardCardToDiscard = currentPlayer.battlePile.splice(cardIndexInHandPile, 1)[0];
+      }
+    }
+  }
+  if (hazardCardToDiscard) board.discardPile.unshift(hazardCardToDiscard);
+  
+  // setting the next player id to her/himself because of the safety card
+  nextPlayerId = currentPlayer.id;
+}  
+
+// to update the game for the played card to drive
+function playCardToDrive(playedCard) {
+  console.log(`--- playWithActionDrive: playedCard`, playedCard);
+
+  const currentPlayer = getCurrentPlayer();
+  const secondPlayer = getSecondPlayer();
+  const cardIndexInHandPile = currentPlayer.handPile.indexOf(playedCard);
+  console.log(`cardIndexInHandPile`, cardIndexInHandPile);
+
+  let isPlayOk = false;
+  if (currentPlayer.battlePile.length === 0) {
+    // the game just begins, needing a drive card
+    isPlayOk = card.name === 'drive' || card.name === 'ev' ? true : false;
+  }
+  else {
+    // the game has already begun
+    // - testing current top battle card
+    // - if current battle card type = hazard
+    // -- if card = ev, ok + new drawn card
+    // -- else, nok 'You cannot drive until your battle pile is green.'
+    // - else current battle card type = remedy
+    // -- if card = ev, ok
+    // -- if card type = distance
+    // --- if name = swallow
+    // ---- if counter < 2, ok
+    // ---- else, nok 'You cannot play more than 2 swallow cards (200).'
+    // --- else, ok
+    // -- else, nok
+  }
+  
+  // setting the next player id to the 2nd player
+  nextPlayerId = secondPlayer.id;
+}  
+
+// to update the game for the played card to defend
+function playCardToDefend(playedCard) {
+  console.log(`--- playCardToDefend: playedCard`, playedCard);
+  
+  const currentPlayer = getCurrentPlayer();
+  const secondPlayer = getSecondPlayer();
+  const cardIndexInHandPile = currentPlayer.handPile.indexOf(playedCard);
+  console.log(`cardIndexInHandPile`, cardIndexInHandPile);
+  
+  // setting the next player id to the 2nd player
+  nextPlayerId = secondPlayer.id;
+}  
+
+// to update the game for the played card to attack
+function playCardToAttack(playedCard) {
+  console.log(`--- playWithActionAttack: playedCard`, playedCard);
+
+  const currentPlayer = getCurrentPlayer();
+  const secondPlayer = getSecondPlayer();
+  const cardIndexInHandPile = currentPlayer.handPile.indexOf(playedCard);
+  console.log(`cardIndexInHandPile`, cardIndexInHandPile);
+  
+  // setting the next player id to the 2nd player
+  nextPlayerId = secondPlayer.id;
+}  
+
 // to check the validity of the combination action + card
 function checkPlay(playActionCard) {
   console.log(`--- checkPlay: playActionCard`, playActionCard);
@@ -138,120 +271,50 @@ function checkPlay(playActionCard) {
   const cardIndexInHandPile = currentPlayer.handPile.indexOf(card);
   console.log(`--- cardIndexInHandPile`, cardIndexInHandPile);
 
-  if (card.type === 'safety') {
-    // always allowed
-    console.log('--- - safety card ok');
-    // testing the coup fourre considering the last card played
-    let isCoupFourre = false;
-    if (board.playPile.length > 0 && board.playPile[0].type === 'hazard') {
-      if (card.name === 'ev' && board.playPile[0].name === 'stop') isCoupFourre = true;
-      else if (card.name === 'ev' && board.playPile[0].name === 'speed') isCoupFourre = true;
-      else if (card.name === 'ft' && board.playPile[0].name === 'gas') isCoupFourre = true;
-      else if (card.name === 'pp' && board.playPile[0].name === 'tire') isCoupFourre = true;
-      else if (card.name === 'da' && board.playPile[0].name === 'accident') isCoupFourre = true;
-    }
-    // - removing this card from player's hand and saving it into play history
-    const safetyCard = currentPlayer.handPile.splice(cardIndexInHandPile, 1)[0];
-    board.playPile.unshift(safetyCard);
-    // - adding this card into the discard pile
-    currentPlayer.safetyPile.unshift(safetyCard);
-    // - updating safety status for the player
-    currentPlayer.updateSafetyStatus(isCoupFourre);
-    console.log(`currentPlayer`, currentPlayer);
-    // - discarding the current card form the player's battle or speed pile if necessary
-/// ====
-///+=== 
-// revoir le cas ev avec stop sur battle pile ou speed sur speed pile
-// autrement battle pile
+  
+  switch(action) {
+    case PLAYER_ACTION.drive:
+      console.log('--- - action drive ok');
+      if (card.type === 'safety') playWithSafetyCard(card);
+      else playCardToDrive(card);
+      break;
+      
+    case PLAYER_ACTION.defend:
+      console.log('--- - action defend ok');
+      if (card.type === 'safety') playWithSafetyCard(card);
+      else playCardToDefend(card);
+      break;
 
-    let hazardCardToDiscard;
-    if (currentPlayer.speedPile.length > 0) {
-      console.log("player's speedPile not empty");
-      if (currentPlayer.speedPile[0].type === 'hazard') {
-        console.log("last card on speedPile = hazard");
-        if (currentPlayer.speedPile[0].name === 'speed' && card.name === 'ev') {
-          console.log("last card on speedPile = speed & safety = ev");
-          hazardCardToDiscard = currentPlayer.speedPile.splice(cardIndexInHandPile, 1);
-        }
-      }
-    }
-    else if (currentPlayer.battlePile.length > 0) {
-      hazardCardToDiscard = currentPlayer.battlePile.splice(cardIndexInHandPile, 1);
-    }
-    if (hazardCardToDiscard) board.discardPile.unshift(hazardCardToDiscard);
+    case PLAYER_ACTION.attack:
+      console.log('--- - action attack ok');
+      if (card.type === 'safety') playWithSafetyCard(card);
+      else playCardToAttack(card);
+      break;
 
-/// ======
-//// ===== set current player = same player id because of safety card
-
-
-
-  }
-  else {
-    let isPlayOk = false;
-    switch(action) {
-      case PLAYER_ACTION.drive:
-        if (card.type === 'safety') {
-          isPlayOk = true;
-        }
-        else {
-          if (currentPlayer.battlePile.length === 0) {
-            // the game just begins, needing a drive card
-            isPlayOk = card.name === 'drive' || card.name === 'ev' ? true : false;
-          }
-          else {
-            // the game has already begun
-            // - testing current top battle card
-            // - if current battle card type = hazard
-            // -- if card = ev, ok + new drawn card
-            // -- else, nok 'You cannot drive until your battle pile is green.'
-            // - else current battle card type = remedy
-            // -- if card = ev, ok
-            // -- if card type = distance
-            // --- if name = swallow
-            // ---- if counter < 2, ok
-            // ---- else, nok 'You cannot play more than 2 swallow cards (200).'
-            // --- else, ok
-            // -- else, nok
-          }
-        }
-
-        if (isPlayOk) {
-          console.log('--- - action drive ok');
-        }
-        break;
-        
-      case PLAYER_ACTION.defend:
-        if (isPlayOk) {console.log('--- - action defend ok');}
-        break;
-
-      case PLAYER_ACTION.attack:
-        if (isPlayOk) {console.log('--- - action attack ok');}
-        break;
-
-      case PLAYER_ACTION.discard:
-        // no restriction on this move
-        isPlayOk = true;
-        // playing the game
-        if (isPlayOk) {
-          console.log('--- - action discard ok');
-          // - removing this card from player's hand and saving it into play history
-          const cardToDiscard = currentPlayer.handPile.splice(cardIndexInHandPile, 1);
-          board.playPile.unshift(cardToDiscard);
-          // - adding this card into the discard pile
-          board.discardPile.unshift(cardToDiscard);
-        }
-        break;
-        
-      default:
-        console.log('No such action allowed, sorry!');
-        break;
-    }
+    case PLAYER_ACTION.discard:
+      console.log('--- - action discard ok');
+      // no restriction on this move: any card can be discarded
+      // - removing this card from player's hand and saving it into play history
+      const cardToDiscard = currentPlayer.handPile.splice(cardIndexInHandPile, 1)[0];
+      board.playPile.unshift(cardToDiscard);
+      // - adding this card into the discard pile
+      board.discardPile.unshift(cardToDiscard);
+      break;
+      
+    default:
+      displayMsg(messages.ERR_NO_SUCH_ACTION);
+      break;
   }
   
-  // updating the player hand on screen
-  writePlayerHandHtml(currentPlayer);
-  // updating driving zone
+  // updating the game entire screen after the play
+  // - loading the driving zones for both players
   writePlayerDrivingZoneHtml(currentPlayer);
+  writePlayerDrivingZoneHtml(secondPlayer);
+  // - loading the board
+  writeBoardHtml(board);
+  // - loading the hands of both players
+  writePlayerHandHtml(currentPlayer);
+  writePlayerHandHtml(secondPlayer);
 }
 
 // to write the html for a player's driving zone
@@ -302,7 +365,7 @@ function writeBoardHtml(board) {
   // preparing and loading the html
   const boardHtml = `
   <div id="drawing-pile" class="card"> <img src="${turnedCard.img}" alt="${turnedCard.alt}"> </div>
-  <div id="discard-pile" class="card"> <img src="${noCard.img}" alt="${noCard.alt}"> </div>
+  <div id="discard-pile" class="card"> <img src="${discardCard.img}" alt="${discardCard.alt}"> </div>
   `;
   document.querySelector(cssSelector).innerHTML = boardHtml;
 }
@@ -390,16 +453,27 @@ window.addEventListener('load', () => {
   writePlayerHandHtml(p1);
   writePlayerHandHtml(p2);
 
+
   // THE CURRENT PLAYER'S TURN BEGINS HERE
+  
+
+  // // adapting depending on how many cards clicked
+  // if (memoryGame.pickedCards.length === 2) {
+    //   // setting timeout to be able to see both cards turned
+    //   timeoutId = setTimeout(() => {
+      //     checkClickedPair();
+      //   }, TIMEOUT_DURATION);
+      // }
+      
+  // draw a card for the current player
+  drawCardFromDrawingPile(getCurrentPlayer());
+
 
   // constructing the css selectors for future manipulation
   const actionCssSelector = `#play${getCurrentPlayer().id} .action`;
   const cardsCssSelector = `#hands .card`;
   const btnCssSelector = `#player${getCurrentPlayer().id}-hand button`;
   
-  // draw a card for the current player
-  drawCardFromDrawingPile(getCurrentPlayer());
-
   // adding event listener to the action for the current player
   document.querySelector(actionCssSelector).addEventListener('click', (event) => {
 
@@ -426,19 +500,9 @@ window.addEventListener('load', () => {
       // highlight card (checking previous choice gets un-highlighted)
       highlightLastChosenCard(event.target);
       // the highlight also updates the actionCard object
-
-     
-      // // adapting depending on how many cards clicked
-      // if (memoryGame.pickedCards.length === 2) {
-        //   // setting timeout to be able to see both cards turned
-        //   timeoutId = setTimeout(() => {
-          //     checkClickedPair();
-          //   }, TIMEOUT_DURATION);
-          // }
-          
     });
   });
-      
+  
   // adding event listener to the play button for both players
   document.querySelector(btnCssSelector).addEventListener('click', (event) => {
     console.log(`event.target`, event.target);

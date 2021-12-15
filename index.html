@@ -16,18 +16,19 @@
       </section>
       <section id="players">
         <div id="instruction">
-          <p>This version involves 2 players using cards to apply strategy while trying to be the first to reach the destination.</p>
-          <p>How far is the destination is set by choosing the game mode.</p>
+          <p>This version involves 2 players using cards.</p>
+          <p>Choose wisely to be the first to reach the destination.</p>
+          <p>How far is the destination depends on the game mode.</p>
         </div>
         <div id="memo">
           <img src="./img/memo.png" alt="memo card">
         </div>
-        <div>
-          <p>Please enter the 2 players' name and age.</p>
+        <div id="input-text">
+          <p>Input players' data and choose the road to follow.</p>
         </div>
         <div id="player1">
           <div>
-            <p>Player 1</p>
+            <p>Player 1:</p>
           </div>
           <div>
             <input type="text" name="p1-firstname" id="p1-firstname" placeholder="1st player's name">
@@ -36,36 +37,39 @@
         </div>
         <div id="player2">
           <div>
-            <p>Player 2</p>
+            <p>Player 2:</p>
           </div>
           <div>
             <input type="text" name="p2-firstname" id="p2-firstname" placeholder="2nd player's name">
             <input type="text" name="p2-age" id="p2-age" placeholder="2nd player's age">
           </div>
         </div>
-        <div id="error-msg"><span></span></div>
       </section>
-      <section id="mode">
+      <section id="play-mode">
         <div>
-          <p>To get to your destination, you can opt for the Shortcut (400 miles), the Interstate (700 miles) or the Scenic Route (1000 miles).</p>
+          <p>To get to your destination, you can opt for 3 routes:</p>
+          <p>the Shortcut (400 miles), the Interstate (700 miles) or the Scenic Route (1000 miles)</p>
         </div>
-        <div class="mode">
-          <div>
-            <input type="radio" name="game-mode" id="shortcut">
-            <label for="drive">Shortcut</label>
-          </div>
-          <div>
-            <input type="radio" name="game-mode" id="interstate">
-            <label for="defend">Interstate</label>
-          </div>
-          <div>
-            <input type="radio" name="game-mode" id="scenicroute">
-            <label for="attack">Scenic Route</label>
+        <div id="mode">
+          <div class="mode">
+            <div>
+              <input type="radio" name="game-mode" id="shortcut">
+              <label for="shortcut">Shortcut</label>
+            </div>
+            <div>
+              <input type="radio" name="game-mode" id="interstate">
+              <label for="interstate">Interstate</label>
+            </div>
+            <div>
+              <input type="radio" name="game-mode" id="scenicroute">
+              <label for="scenicroute">Scenic Route</label>
+            </div>
           </div>
         </div>
       </section>
-      <section id="roll">
-        <div id="link"><p>Input the players' data and choose the road to follow.</p></div>
+      <section id="go">
+        <div id="link"></div>
+        <div id="display-msg"><span></span></div>
       </section>
     </div>
   </body>
