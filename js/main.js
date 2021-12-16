@@ -198,40 +198,89 @@ function playWithSafetyCard(playedCard) {
   
   // setting the next player id to her/himself because of the safety card
   nextPlayerId = currentPlayer.id;
-}  
+} 
+
+function isCardOkToDrive(playedCard, currentPlayer) {
+  // the game just begins, needing a drive card
+  // the game has already begun
+  // - testing current top battle card
+  // - if current battle card type = hazard
+  // -- if card = ev, ok + new drawn card
+  // -- else, nok 'You cannot drive until your battle pile is green.'
+  // - else current battle card type = remedy
+  // -- if card = ev, ok
+  // -- if card type = distance
+  // --- if name = swallow
+  // ---- if counter < 2, ok
+  // ---- else, nok 'You cannot play more than 2 swallow cards (200).'
+  // --- else, ok
+  // -- else, nok
+
+  let msg = '';
+  if (currentPlayer.battlePile.length === 0) {
+    // not started, need a drive card (green light) unless safety ev in place
+    if (currentPlayer.isEmergencyVehicle.status) return msg;
+    else {
+      if (playedCard.name === 'drive') return msg;
+      else return messages.ERR_BATTLE_PILE_EMPTY;
+    }
+  }
+  else {
+    // battlePile activated
+    if (currentPlayer.battlePile[0].type === 'hazard') return messages.ERR_BATTLE_PILE_RED;
+    else {
+      // battlePile currently green
+      if (playedCard.type === 'distance') {
+        if (currentPlayer.speedPile.length > 0 && currentPlayer.speedPile[0].type === 'hazard') {
+          // speed limit in place
+          if (playedCard.name === 'snail' || playedCard.name === 'duck') return msg;
+          else return messages.ERR_SPEED_LIMIT;
+        }
+        else {
+          // no speed limit
+          if (playedCard.name === 'swallow') {
+            // testing the swallow count
+            if (currentPlayer.countSwallows() < 2) return msg;
+            else return messages.ERR_MAX_SWALLOW;
+          } 
+          else return msg;
+        }
+      }
+      else return messages.ERR_ACTION_CARD_NOK;
+    }
+  }
+}
 
 // to update the game for the played card to drive
 function playCardToDrive(playedCard) {
-  console.log(`--- playWithActionDrive: playedCard`, playedCard);
+  console.log(`--- playCardToDrive: playedCard`, playedCard);
 
   const currentPlayer = getCurrentPlayer();
   const secondPlayer = getSecondPlayer();
   const cardIndexInHandPile = currentPlayer.handPile.indexOf(playedCard);
   console.log(`cardIndexInHandPile`, cardIndexInHandPile);
 
-  let isPlayOk = false;
-  if (currentPlayer.battlePile.length === 0) {
-    // the game just begins, needing a drive card
-    isPlayOk = card.name === 'drive' || card.name === 'ev' ? true : false;
+  const msg = isCardOkToDrive(playedCard, currentPlayer);
+  if (msg) {
+    displayMsg(msg);
   }
   else {
-    // the game has already begun
-    // - testing current top battle card
-    // - if current battle card type = hazard
-    // -- if card = ev, ok + new drawn card
-    // -- else, nok 'You cannot drive until your battle pile is green.'
-    // - else current battle card type = remedy
-    // -- if card = ev, ok
-    // -- if card type = distance
-    // --- if name = swallow
-    // ---- if counter < 2, ok
-    // ---- else, nok 'You cannot play more than 2 swallow cards (200).'
-    // --- else, ok
-    // -- else, nok
+    // removing the card from handPile and saving it into play history
+    const cardToMove = currentPlayer.handPile.splice(cardIndexInHandPile, 1)[0];
+    board.playPile.unshift(cardToMove);
+    // test for placement location
+    if (playedCard.name === 'drive') {
+      // placing it on battlePile
+      currentPlayer.battlePile.unshift(cardToMove);
+    }
+    else if (playedCard.type === 'distance') {
+      // placing it on distancePile
+      currentPlayer.distancePile.unshift(cardToMove);
+    }
+    
+    // setting the next player id to the 2nd player
+    nextPlayerId = secondPlayer.id;
   }
-  
-  // setting the next player id to the 2nd player
-  nextPlayerId = secondPlayer.id;
 }  
 
 // to update the game for the played card to defend
@@ -249,7 +298,7 @@ function playCardToDefend(playedCard) {
 
 // to update the game for the played card to attack
 function playCardToAttack(playedCard) {
-  console.log(`--- playWithActionAttack: playedCard`, playedCard);
+  console.log(`--- playCardToAttack: playedCard`, playedCard);
 
   const currentPlayer = getCurrentPlayer();
   const secondPlayer = getSecondPlayer();
@@ -260,9 +309,29 @@ function playCardToAttack(playedCard) {
   nextPlayerId = secondPlayer.id;
 }  
 
+// to update the game for the played card to discard
+function playCardToDiscard(playedCard) {
+  console.log(`--- playCardToDiscard: playedCard`, playedCard);
+
+  const currentPlayer = getCurrentPlayer();
+  const secondPlayer = getSecondPlayer();
+  const cardIndexInHandPile = currentPlayer.handPile.indexOf(playedCard);
+  console.log(`cardIndexInHandPile`, cardIndexInHandPile);
+
+  // no restriction on this move: any card can be discarded
+  // - removing this card from player's hand and saving it into play history
+  const cardToDiscard = currentPlayer.handPile.splice(cardIndexInHandPile, 1)[0];
+  board.playPile.unshift(cardToDiscard);
+  // - adding this card into the discard pile
+  board.discardPile.unshift(cardToDiscard);
+
+  // setting the next player id to the 2nd player
+  nextPlayerId = secondPlayer.id;
+}  
+
 // to check the validity of the combination action + card
-function checkPlay(playActionCard) {
-  console.log(`--- checkPlay: playActionCard`, playActionCard);
+function playActionAndCard(playActionCard) {
+  console.log(`--- playActionAndCard: playActionCard`, playActionCard);
 
   const currentPlayer = getCurrentPlayer();
   const secondPlayer = getSecondPlayer();
@@ -293,12 +362,7 @@ function checkPlay(playActionCard) {
 
     case PLAYER_ACTION.discard:
       console.log('--- - action discard ok');
-      // no restriction on this move: any card can be discarded
-      // - removing this card from player's hand and saving it into play history
-      const cardToDiscard = currentPlayer.handPile.splice(cardIndexInHandPile, 1)[0];
-      board.playPile.unshift(cardToDiscard);
-      // - adding this card into the discard pile
-      board.discardPile.unshift(cardToDiscard);
+      playCardToDiscard(card);
       break;
       
     default:
@@ -374,6 +438,7 @@ function writeBoardHtml(board) {
 function writePlayerHandHtml(player) {
   const cssSelector = `#player${player.id}-hand`;
   const playerHandElement = document.querySelector(cssSelector);
+  console.log(`playerHandElement`, playerHandElement);
 
   // testing if there is a drawn card or not
   const drawnCard = player.handPile.length < HAND_PILE_MAX_LENGTH
@@ -425,9 +490,10 @@ function writePlayerHandHtml(player) {
   `;
   playerHandElement.innerHTML = playerHandHtml;
 
+  console.log(`currentPlayerId`, currentPlayerId);
   // hiding the hand not belonging to the current player
-  if (!playerHandElement.id.includes(String(currentPlayerId)))
-      playerHandElement.style.display = 'none';
+  if (playerHandElement.id.includes(String(currentPlayerId))) playerHandElement.style.display = 'block';
+  else playerHandElement.style.display = 'none';
 }
 
 
@@ -505,9 +571,13 @@ window.addEventListener('load', () => {
   
   // adding event listener to the play button for both players
   document.querySelector(btnCssSelector).addEventListener('click', (event) => {
-    console.log(`event.target`, event.target);
+    console.log(`event.target`, event.target, 'getCurrentPlayer()', getCurrentPlayer());
     // check the validity of the combination action + card (returning the nextPlayerId)
-    checkPlay(currentActionCard);
+    playActionAndCard(currentActionCard);
+    // setting the game for next round
+    currentPlayerId = nextPlayerId;
+    console.log(`getCurrentPlayer()`, getCurrentPlayer());
+    drawCardFromDrawingPile(getCurrentPlayer());
   });
 
 });

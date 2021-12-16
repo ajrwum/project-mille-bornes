@@ -212,6 +212,8 @@ section {
   color: var(--color-main-red);
   font-weight: 600;
   line-height: 2rem;
+  text-align: center;
+  margin-bottom: 1rem;
   width: 80vw;
 }
 
