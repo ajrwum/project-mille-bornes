@@ -449,37 +449,44 @@ function playActionAndCard(playActionCard) {
   const cardIndexInHandPile = currentPlayer.handPile.indexOf(card);
   console.log(`--- cardIndexInHandPile`, cardIndexInHandPile);
 
-  
-  switch(action) {
-    case PLAYER_ACTION.discard:
-      console.log('--- - action discard');
-      playCardToDiscard(card);
-      break;
-      
-    case PLAYER_ACTION.drive:
-      console.log('--- - action drive');
-      if (card.type === 'safety') playWithSafetyCard(card);
-      else playCardToDrive(card);
-      break;
-      
-    case PLAYER_ACTION.defend:
-      console.log('--- - action defend');
-      if (card.type === 'safety') playWithSafetyCard(card);
-      else playCardToDefend(card);
-      break;
+  if (action !== null && card !== noCard) {
+    // ok to look further
+    switch(action) {
+      case PLAYER_ACTION.discard:
+        console.log('--- - action discard');
+        playCardToDiscard(card);
+        break;
+        
+      case PLAYER_ACTION.drive:
+        console.log('--- - action drive');
+        if (card.type === 'safety') playWithSafetyCard(card);
+        else playCardToDrive(card);
+        break;
+        
+      case PLAYER_ACTION.defend:
+        console.log('--- - action defend');
+        if (card.type === 'safety') playWithSafetyCard(card);
+        else playCardToDefend(card);
+        break;
 
-    case PLAYER_ACTION.attack:
-      console.log('--- - action attack');
-      if (card.type === 'safety') playWithSafetyCard(card);
-      else playCardToAttack(card);
-      break;
+      case PLAYER_ACTION.attack:
+        console.log('--- - action attack');
+        if (card.type === 'safety') playWithSafetyCard(card);
+        else playCardToAttack(card);
+        break;
 
-    default:
-      displayMsg(messages.ERR_NO_SUCH_ACTION);
-      isGameOnHold = true;
-      break;
+      default:
+        displayMsg(messages.ERR_NO_SUCH_ACTION);
+        isGameOnHold = true;
+        break;
+    }
   }
-  
+  else {
+    // display msg and hold
+    displayMsg(messages.ERR_NO_SUCH_ACTION);
+    isGameOnHold = true;
+  }
+
   // updating the game entire screen after the play
   // - loading the driving zones for both players
   writePlayerDrivingZoneHtml(currentPlayer);
@@ -628,6 +635,7 @@ function adjustPlayerHandDisplayValue() {
 
 // to add event listeners to the current player's hand (action, card and button)
 function listenPlayerHandHtml(player) {
+  console.log('--- listenPlayerHandHtml');
 
   // constructing the css selectors for future manipulation
   const actionCssSelector = `#play${player.id} .action`;
@@ -666,13 +674,14 @@ function listenPlayerHandHtml(player) {
   // adding event listener to the play button for both players
   document.querySelector(btnCssSelector).addEventListener('click', (event) => {
     console.log(`event.target`, event.target, 'player', player);
+
     // check the validity of the combination action + card (returning the nextPlayerId)
     playActionAndCard(currentActionCard);
-    // setting the game for next round
-    currentPlayerId = nextPlayerId;
-    console.log(`player`, player);
-    // drawCardFromDrawingPile(player);
     if (!isGameOnHold) {
+      // setting the game for next round
+      currentPlayerId = nextPlayerId;
+      console.log(`player`, player);
+  
       // no message currently displayed, drawing a new card
       drawCardFromDrawingPile(getCurrentPlayer());
     }
@@ -717,6 +726,7 @@ window.addEventListener('load', () => {
       
   // draw a card for the current player
   if (!isGameOnHold) {
+    console.log(`--- window.load: currentActionCard`, currentActionCard);
     // no msg displayed at the moment, drawing a new card
     drawCardFromDrawingPile(getCurrentPlayer());
   } 
