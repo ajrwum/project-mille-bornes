@@ -439,6 +439,7 @@ function playCardToDiscard(playedCard) {
 
 // to check the validity of the combination action + card
 function playActionAndCard(playActionCard) {
+  isGameOnHold = false;
   console.log(`--- playActionAndCard: playActionCard`, playActionCard);
 
   const currentPlayer = getCurrentPlayer();
@@ -475,6 +476,7 @@ function playActionAndCard(playActionCard) {
 
     default:
       displayMsg(messages.ERR_NO_SUCH_ACTION);
+      isGameOnHold = true;
       break;
   }
   
@@ -487,6 +489,11 @@ function playActionAndCard(playActionCard) {
   // - loading the hands of both players
   writePlayerHandHtml(currentPlayer);
   writePlayerHandHtml(secondPlayer);
+
+  // adding new event listeners to the players' hands
+  listenPlayerHandHtml(getCurrentPlayer())
+  listenPlayerHandHtml(getSecondPlayer())
+
   // - resetting the currentActionCard for the next round
   resetCurrentActionCard();
 }
