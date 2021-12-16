@@ -25,6 +25,13 @@ const messages = {
   ERR_TIRE_ATTACK_USELESS: 'You do not need a tire attack.',
   ERR_ACCIDENT_ATTACK_USELESS: 'You do not need an accident attack.',
   ERR_NEED_REPAIR_ATTACK: 'You cannot play an attack card on another.',
+
+  LOSER_PART1: "SORRY ",
+  LOSER_PART2: ", YOU'VE GONE BEYOND ",
+  LOSER_PART3: " MILES, YOU LOSE...",
+
+  WINNER_PART1: " MILES DONE!  CONGRATS, ",
+  WINNER_PART2: " , YOU WIN!!!",
 };
 
 // display error message

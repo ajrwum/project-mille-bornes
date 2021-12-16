@@ -2,7 +2,8 @@
 import { ID_P1, ID_P2, GAME_INIT_DEFAULT, PLAYER_ACTION,
   STORAGE_NAME,
   HAND_MAX_INDEX, DRAWN_CARD_INDEX, HAND_PILE_MAX_LENGTH,
-  CLASS_NAME_HIGHLIGHT } from "./data.js";
+  CLASS_NAME_HIGHLIGHT, 
+  GAME_MAX_DISTANCE} from "./data.js";
 import { cards, noCard, turnedCard } from "./cards.js";
 import { Board } from "./board.js";
 import { Player } from "./player.js";
@@ -503,6 +504,9 @@ function playActionAndCard(playActionCard) {
 
   // - resetting the currentActionCard for the next round
   resetCurrentActionCard();
+
+  // checking if there is a winner yet
+  isGameFinished();
 }
 
 // to write the html for a player's driving zone
@@ -687,7 +691,39 @@ function listenPlayerHandHtml(player) {
     }
   });
 
-}  
+}
+
+// to test the end of game
+function isGameFinished() {
+  console.log(`--- isGameFinished: gameMode`, board.gameMode);
+
+  // getting players
+  const currentPlayer = getCurrentPlayer();
+
+  // getting the goal (set by choosing the game mode)
+  const distanceGoal = GAME_MAX_DISTANCE[board.gameMode];
+
+  // getting currentPlayer data
+  const nameCurrentPlayer = currentPlayer.name.toUpperCase();
+  const doneByCurrentPlayer = getCurrentPlayer().countDistance();
+
+  if (doneByCurrentPlayer === distanceGoal) {
+    let msg = String(distanceGoal) + messages.WINNER_PART1 + nameCurrentPlayer + messages.WINNER_PART2;
+    displayMsg(msg);
+    isGameOnHold = true;
+    return true;
+  }
+  if (doneByCurrentPlayer > distanceGoal) {
+    let msg = messages.LOSER_PART1 + nameCurrentPlayer
+              + messages.LOSER_PART2 + String(distanceGoal) + messages.LOSER_PART3 ;
+    displayMsg(msg);
+    isGameOnHold = true;
+    return true;
+  }
+
+  return false;
+
+}
 
 
 

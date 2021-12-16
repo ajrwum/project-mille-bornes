@@ -1,6 +1,7 @@
 // game init default data
 export const ID_P1 = 1;
 export const ID_P2 = 2;
+
 export const GAME_INIT_DEFAULT = {
   player1: {name: 'PLAYER 1', age: 30},
   player2: {name: 'PLAYER 2', age: 53},
