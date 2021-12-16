@@ -19,11 +19,11 @@ const messages = {
   ERR_NEED_REPAIR_REMEDY: 'You need a repair remedy before drive.',
 
   ERR_CARD_NOT_ATTACK: 'The chosen card is not an attack card.',
-  ERR_DRIVE_ATTACK_USELESS: 'You do not need a drive attack card.',
-  ERR_SPEED_ATTACK_USELESS: 'You do not need a speed limit attack card.',
-  ERR_GAS_ATTACK_USELESS: 'You do not need a gas attack.',
-  ERR_TIRE_ATTACK_USELESS: 'You do not need a tire attack.',
-  ERR_ACCIDENT_ATTACK_USELESS: 'You do not need an accident attack.',
+  ERR_DRIVE_ATTACK_USELESS: 'You cannot use a drive attack card.',
+  ERR_SPEED_ATTACK_USELESS: 'You cannot use a speed limit attack card.',
+  ERR_GAS_ATTACK_USELESS: 'You cannot use a gas attack.',
+  ERR_TIRE_ATTACK_USELESS: 'You cannot use a tire attack.',
+  ERR_ACCIDENT_ATTACK_USELESS: 'You cannot use an accident attack.',
   ERR_NEED_REPAIR_ATTACK: 'You cannot play an attack card on another.',
 
   LOSER_PART1: "SORRY ",

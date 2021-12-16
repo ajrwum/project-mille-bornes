@@ -293,9 +293,13 @@ function isCardOkToDefend(playedCard, currentPlayer) {
         else {
           if (!isBattlePileEmpty) {
             if (currentPlayer.battlePile[0].type === 'hazard') {
-              return messages.ERR_NEED_REPAIR_REMEDY;
+              if (currentPlayer.battlePile[0].name === 'stop') return msg;
+              else return messages.ERR_NEED_REPAIR_REMEDY;
             }
-            else return msg;
+            else{
+              if (currentPlayer.battlePile[0].name !== 'drive') return msg;
+              else return messages.ERR_DRIVE_REMEDY_USELESS;;
+            }
           }
           else return msg;
         }
@@ -310,7 +314,7 @@ function isCardOkToDefend(playedCard, currentPlayer) {
             return messages.ERR_SPEED_REMEDY_USELESS;
           }
           else {
-            if (!currentPlayer.speedPile[0].type === 'hazard') return msg;
+            if (currentPlayer.speedPile[0].type === 'hazard') return msg;
             else return messages.ERR_SPEED_REMEDY_USELESS;
           }
         };
@@ -325,19 +329,49 @@ function isCardOkToDefend(playedCard, currentPlayer) {
             return messages.ERR_GAS_REMEDY_USELESS;
           }
           else {
-            if (currentPlayer.battlePile[0]) {
-              // ============================================================= to do
+            if (currentPlayer.battlePile[0].type === 'hazard') {
+              if (currentPlayer.battlePile[0].name === 'gas') return msg;
+              else return messages.ERR_GAS_REMEDY_USELESS;
             }
+            else return messages.ERR_GAS_REMEDY_USELESS;
           }
         }
         break;
 
       case 'tire':
-        // ======================================================= to do
+        if (currentPlayer.isPunctureProof.status === true) {
+          return messages.ERR_TIRE_REMEDY_USELESS;
+        }
+        else {
+          if (isBattlePileEmpty) {
+            return messages.ERR_TIRE_REMEDY_USELESS;
+          }
+          else {
+            if (currentPlayer.battlePile[0].type === 'hazard') {
+              if (currentPlayer.battlePile[0].name === 'tire') return msg;
+              else return messages.ERR_TIRE_REMEDY_USELESS;
+            }
+            else return messages.ERR_TIRE_REMEDY_USELESS;
+          }
+        }
         break;
 
       case 'accident':
-        // ======================================================= to do
+        if (currentPlayer.isDrivingAce.status === true) {
+          return messages.ERR_ACCIDENT_REMEDY_USELESS;
+        }
+        else {
+          if (isBattlePileEmpty) {
+            return messages.ERR_ACCIDENT_REMEDY_USELESS;
+          }
+          else {
+            if (currentPlayer.battlePile[0].type === 'hazard') {
+              if (currentPlayer.battlePile[0].name === 'accident') return msg;
+              else return messages.ERR_ACCIDENT_REMEDY_USELESS;
+            }
+            else return messages.ERR_ACCIDENT_REMEDY_USELESS;
+          }
+        }
         break;
 
       default:
@@ -693,6 +727,7 @@ function listenPlayerHandHtml(player) {
 
 }
 
+
 // to test the end of game
 function isGameFinished() {
   console.log(`--- isGameFinished: gameMode`, board.gameMode);
@@ -724,7 +759,6 @@ function isGameFinished() {
   return false;
 
 }
-
 
 
 
