@@ -17,18 +17,29 @@ const board = new Board(cards, GAME_INIT_DEFAULT.mode);
 const p1 = new Player(ID_P1, GAME_INIT_DEFAULT.player1.name, GAME_INIT_DEFAULT.player1.age);
 const p2 = new Player(ID_P2, GAME_INIT_DEFAULT.player2.name, GAME_INIT_DEFAULT.player2.age);
 
+// init boolean to be able to hold on drawing until no error is detected
+let isGameOnHold = false;
+
 // init current actionCard
 let currentActionCard = {
-  playAction: PLAYER_ACTION.drive,
+  playAction: null,
+  // playAction: PLAYER_ACTION.drive,
   playCard: noCard
 };
+
+function resetCurrentActionCard() {
+  currentActionCard = {
+    playAction: null,
+    playCard: noCard
+  };
+}
 
 // init the timeoutId
 let timeoutId;
 
 // init current and next player id (1 to begin the game)
 let currentPlayerId = 1;
-let nextPlayerId = 0;
+let nextPlayerId = null;
 
 // get localStorage
 function getLocalStorage() {
@@ -108,25 +119,21 @@ function dealCardsToPlayers(cards) {
 
 // to draw a card from the drawing pile to complete player's hand before play
 function drawCardFromDrawingPile(player) {
-  console.log('--- drawCardFromDrawingPile');
-
-
-  // // adapting depending on how many cards clicked
-  // if (memoryGame.pickedCards.length === 2) {
-    //   // setting timeout to be able to see both cards turned
-    //   timeoutId = setTimeout(() => {
-      //     checkClickedPair();
-      //   }, TIMEOUT_DURATION);
-      // }
-      
+  console.log('--- drawCardFromDrawingPile');      
 
   // drawing a card, placing it into the playPile (game history) and in the player hand
   const drawnCard = board.drawingPile.shift();
   board.playPile.unshift(drawnCard);
   // placing it also in the adequate player hand
   player.handPile[DRAWN_CARD_INDEX] = drawnCard;
-  // update dom
-  writePlayerHandHtml(player);
+
+  // updating dom for both players
+  writePlayerHandHtml(getCurrentPlayer());
+  writePlayerHandHtml(getSecondPlayer());
+
+  // adding new event listeners to the players' hands
+  listenPlayerHandHtml(getCurrentPlayer())
+  listenPlayerHandHtml(getSecondPlayer())
 }
 
 // to highlight the last chosen card
@@ -200,22 +207,8 @@ function playWithSafetyCard(playedCard) {
   nextPlayerId = currentPlayer.id;
 } 
 
+// to update the game for the played card to drive
 function isCardOkToDrive(playedCard, currentPlayer) {
-  // the game just begins, needing a drive card
-  // the game has already begun
-  // - testing current top battle card
-  // - if current battle card type = hazard
-  // -- if card = ev, ok + new drawn card
-  // -- else, nok 'You cannot drive until your battle pile is green.'
-  // - else current battle card type = remedy
-  // -- if card = ev, ok
-  // -- if card type = distance
-  // --- if name = swallow
-  // ---- if counter < 2, ok
-  // ---- else, nok 'You cannot play more than 2 swallow cards (200).'
-  // --- else, ok
-  // -- else, nok
-
   let msg = '';
   if (currentPlayer.battlePile.length === 0) {
     // not started, need a drive card (green light) unless safety ev in place
@@ -250,8 +243,6 @@ function isCardOkToDrive(playedCard, currentPlayer) {
     }
   }
 }
-
-// to update the game for the played card to drive
 function playCardToDrive(playedCard) {
   console.log(`--- playCardToDrive: playedCard`, playedCard);
 
@@ -263,8 +254,11 @@ function playCardToDrive(playedCard) {
   const msg = isCardOkToDrive(playedCard, currentPlayer);
   if (msg) {
     displayMsg(msg);
+    // indicating a hold for new card drawing
+    isGameOnHold = true;
   }
   else {
+    isGameOnHold = false;
     // removing the card from handPile and saving it into play history
     const cardToMove = currentPlayer.handPile.splice(cardIndexInHandPile, 1)[0];
     board.playPile.unshift(cardToMove);
@@ -281,9 +275,77 @@ function playCardToDrive(playedCard) {
     // setting the next player id to the 2nd player
     nextPlayerId = secondPlayer.id;
   }
-}  
+}
 
 // to update the game for the played card to defend
+function isCardOkToDefend(playedCard, currentPlayer) {
+  let msg = '';
+  const isSpeedPileEmpty = currentPlayer.speedPile.length === 0 ? true : false;
+  const isBattlePileEmpty = currentPlayer.battlePile.length === 0 ? true : false;
+
+  if (playedCard.type === 'remedy') {
+    switch (playedCard.name) {
+      case 'drive':
+        if (currentPlayer.isEmergencyVehicle.status === true) {
+          return messages.ERR_DRIVE_REMEDY_USELESS;
+        }
+        else {
+          if (!isBattlePileEmpty) {
+            if (currentPlayer.battlePile[0].type === 'hazard') {
+              return messages.ERR_NEED_REPAIR_REMEDY;
+            }
+            else return msg;
+          }
+          else return msg;
+        }
+        break;
+
+      case 'speed':
+        if (currentPlayer.isEmergencyVehicle.status === true) {
+          return messages.ERR_SPEED_REMEDY_USELESS;
+        }
+        else {
+          if (isSpeedPileEmpty) {
+            return messages.ERR_SPEED_REMEDY_USELESS;
+          }
+          else {
+            if (!currentPlayer.speedPile[0].type === 'hazard') return msg;
+            else return messages.ERR_SPEED_REMEDY_USELESS;
+          }
+        };
+        break;
+
+      case 'gas':
+        if (currentPlayer.isFuelTruck.status === true) {
+          return messages.ERR_GAS_REMEDY_USELESS;
+        }
+        else {
+          if (isBattlePileEmpty) {
+            return messages.ERR_GAS_REMEDY_USELESS;
+          }
+          else {
+            if (currentPlayer.battlePile[0]) {
+              // ============================================================= to do
+            }
+          }
+        }
+        break;
+
+      case 'tire':
+        // ======================================================= to do
+        break;
+
+      case 'accident':
+        // ======================================================= to do
+        break;
+
+      default:
+        return messages.ERR_ACTION_CARD_NOK;
+        break;
+    }
+  }
+  else return messages.ERR_CARD_NOT_DEFENSE;
+}
 function playCardToDefend(playedCard) {
   console.log(`--- playCardToDefend: playedCard`, playedCard);
   
@@ -292,11 +354,40 @@ function playCardToDefend(playedCard) {
   const cardIndexInHandPile = currentPlayer.handPile.indexOf(playedCard);
   console.log(`cardIndexInHandPile`, cardIndexInHandPile);
   
-  // setting the next player id to the 2nd player
-  nextPlayerId = secondPlayer.id;
+
+  const msg = isCardOkToDefend(playedCard, currentPlayer);
+  if (msg) {
+    displayMsg(msg);
+    // indicating a hold for new card drawing
+    isGameOnHold = true;
+  }
+  else {
+    isGameOnHold = false;
+    // removing the card from handPile and saving it into play history
+    const cardToMove = currentPlayer.handPile.splice(cardIndexInHandPile, 1)[0];
+    board.playPile.unshift(cardToMove);
+    // test for placement location
+    if (playedCard.name === 'speed') {
+      // placing it on speedPile
+      currentPlayer.speedPile.unshift(cardToMove);
+    }
+    else {
+      // placing it on battlePile
+      currentPlayer.battlePile.unshift(cardToMove);
+    }
+    
+    // setting the next player id to the 2nd player
+    nextPlayerId = secondPlayer.id;
+  }
+
 }  
 
 // to update the game for the played card to attack
+function isCardOkToAttack(playedCard, currentPlayer, secondPlayer) {
+  let msg = '';
+  // ========================================== to do
+  return msg;
+}
 function playCardToAttack(playedCard) {
   console.log(`--- playCardToAttack: playedCard`, playedCard);
 
@@ -304,9 +395,26 @@ function playCardToAttack(playedCard) {
   const secondPlayer = getSecondPlayer();
   const cardIndexInHandPile = currentPlayer.handPile.indexOf(playedCard);
   console.log(`cardIndexInHandPile`, cardIndexInHandPile);
-  
-  // setting the next player id to the 2nd player
-  nextPlayerId = secondPlayer.id;
+
+  const msg = isCardOkToAttack(playedCard, currentPlayer, secondPlayer);
+  if (msg) {
+    displayMsg(msg);
+    // indicating a hold for new card drawing
+    isGameOnHold = true;
+  }
+  else {
+    isGameOnHold = false;
+    // removing the card from handPile and saving it into play history
+    const cardToMove = currentPlayer.handPile.splice(cardIndexInHandPile, 1)[0];
+    board.playPile.unshift(cardToMove);
+    // test for placement location
+    
+    // ====================================================== to do
+
+    // setting the next player id to the 2nd player
+    nextPlayerId = secondPlayer.id;
+  }
+
 }  
 
 // to update the game for the played card to discard
@@ -342,29 +450,29 @@ function playActionAndCard(playActionCard) {
 
   
   switch(action) {
+    case PLAYER_ACTION.discard:
+      console.log('--- - action discard');
+      playCardToDiscard(card);
+      break;
+      
     case PLAYER_ACTION.drive:
-      console.log('--- - action drive ok');
+      console.log('--- - action drive');
       if (card.type === 'safety') playWithSafetyCard(card);
       else playCardToDrive(card);
       break;
       
     case PLAYER_ACTION.defend:
-      console.log('--- - action defend ok');
+      console.log('--- - action defend');
       if (card.type === 'safety') playWithSafetyCard(card);
       else playCardToDefend(card);
       break;
 
     case PLAYER_ACTION.attack:
-      console.log('--- - action attack ok');
+      console.log('--- - action attack');
       if (card.type === 'safety') playWithSafetyCard(card);
       else playCardToAttack(card);
       break;
 
-    case PLAYER_ACTION.discard:
-      console.log('--- - action discard ok');
-      playCardToDiscard(card);
-      break;
-      
     default:
       displayMsg(messages.ERR_NO_SUCH_ACTION);
       break;
@@ -379,6 +487,8 @@ function playActionAndCard(playActionCard) {
   // - loading the hands of both players
   writePlayerHandHtml(currentPlayer);
   writePlayerHandHtml(secondPlayer);
+  // - resetting the currentActionCard for the next round
+  resetCurrentActionCard();
 }
 
 // to write the html for a player's driving zone
@@ -456,7 +566,7 @@ function writePlayerHandHtml(player) {
     </div>
     <div class="action">
       <div>
-        <input type="radio" name="action-player${player.id}" id="drive${player.id}" checked>
+        <input type="radio" name="action-player${player.id}" id="drive${player.id}">
         <label for="drive${player.id}">Drive</label>
       </div>
       <div>
@@ -492,53 +602,30 @@ function writePlayerHandHtml(player) {
 
   console.log(`currentPlayerId`, currentPlayerId);
   // hiding the hand not belonging to the current player
-  if (playerHandElement.id.includes(String(currentPlayerId))) playerHandElement.style.display = 'block';
-  else playerHandElement.style.display = 'none';
+  adjustPlayerHandDisplayValue();
+
 }
 
-
-window.addEventListener('load', () => {
-  // updating board and players from inputs
-  const gameInputs = getLocalStorage();
-  board.gameMode = gameInputs.mode.name;
-  // defining 1st player and updating players accordingly
-  setPlayers(gameInputs);
+// to adjust visibility of the right player's hand
+function adjustPlayerHandDisplayValue() {
+  // setting display 'block' for current player
+  const currentPlayer = getCurrentPlayer();
+  const currentPlayerHandElement = document.querySelector(`#player${currentPlayer.id}-hand`);
+  currentPlayerHandElement.style.display = 'block';
   
-  // shuffling cards in drawing deck and dealing first cards to both players
-  const shuffledCards = board.shuffleCards();
-  dealCardsToPlayers(shuffledCards);
-  // console.log(`p1.handPile`, p1.handPile);
-  // console.log(`p2.handPile`, p2.handPile);
-  
-  // loading the driving zones for both players
-  writePlayerDrivingZoneHtml(p1);
-  writePlayerDrivingZoneHtml(p2);
-  // loading the board
-  writeBoardHtml(board);
-  // loading the hands of both players
-  writePlayerHandHtml(p1);
-  writePlayerHandHtml(p2);
+  // setting display 'none' for second player
+  const secondPlayer = getSecondPlayer();
+  const secondPlayerHandElement = document.querySelector(`#player${secondPlayer.id}-hand`);
+  secondPlayerHandElement.style.display = 'none';
+}
 
-
-  // THE CURRENT PLAYER'S TURN BEGINS HERE
-  
-
-  // // adapting depending on how many cards clicked
-  // if (memoryGame.pickedCards.length === 2) {
-    //   // setting timeout to be able to see both cards turned
-    //   timeoutId = setTimeout(() => {
-      //     checkClickedPair();
-      //   }, TIMEOUT_DURATION);
-      // }
-      
-  // draw a card for the current player
-  drawCardFromDrawingPile(getCurrentPlayer());
-
+// to add event listeners to the current player's hand (action, card and button)
+function listenPlayerHandHtml(player) {
 
   // constructing the css selectors for future manipulation
-  const actionCssSelector = `#play${getCurrentPlayer().id} .action`;
+  const actionCssSelector = `#play${player.id} .action`;
   const cardsCssSelector = `#hands .card`;
-  const btnCssSelector = `#player${getCurrentPlayer().id}-hand button`;
+  const btnCssSelector = `#player${player.id}-hand button`;
   
   // adding event listener to the action for the current player
   document.querySelector(actionCssSelector).addEventListener('click', (event) => {
@@ -571,13 +658,60 @@ window.addEventListener('load', () => {
   
   // adding event listener to the play button for both players
   document.querySelector(btnCssSelector).addEventListener('click', (event) => {
-    console.log(`event.target`, event.target, 'getCurrentPlayer()', getCurrentPlayer());
+    console.log(`event.target`, event.target, 'player', player);
     // check the validity of the combination action + card (returning the nextPlayerId)
     playActionAndCard(currentActionCard);
     // setting the game for next round
     currentPlayerId = nextPlayerId;
-    console.log(`getCurrentPlayer()`, getCurrentPlayer());
-    drawCardFromDrawingPile(getCurrentPlayer());
+    console.log(`player`, player);
+    // drawCardFromDrawingPile(player);
+    if (!isGameOnHold) {
+      // no message currently displayed, drawing a new card
+      drawCardFromDrawingPile(getCurrentPlayer());
+    }
   });
 
+}  
+
+
+
+
+window.addEventListener('load', () => {
+  // updating board and players from inputs
+  const gameInputs = getLocalStorage();
+  board.gameMode = gameInputs.mode.name;
+  // defining 1st player and updating players accordingly
+  setPlayers(gameInputs);
+  
+  // shuffling cards in drawing deck and dealing first cards to both players
+  const shuffledCards = board.shuffleCards();
+  dealCardsToPlayers(shuffledCards);
+  // console.log(`p1.handPile`, p1.handPile);
+  // console.log(`p2.handPile`, p2.handPile);
+  
+  // loading the driving zones for both players
+  writePlayerDrivingZoneHtml(p1);
+  writePlayerDrivingZoneHtml(p2);
+  // loading the board
+  writeBoardHtml(board);
+  // loading the hands of both players
+  writePlayerHandHtml(p1);
+  writePlayerHandHtml(p2);
+
+
+  // THE CURRENT PLAYER'S TURN BEGINS HERE
+  
+      //   // setting timeout to give time to players to change place
+    //   timeoutId = setTimeout(() => {
+      //     drawCardFromDrawingPile(getCurrentPlayer());
+      //   }, TIMEOUT_DURATION);
+      // }
+
+      
+  // draw a card for the current player
+  if (!isGameOnHold) {
+    // no msg displayed at the moment, drawing a new card
+    drawCardFromDrawingPile(getCurrentPlayer());
+  } 
+  
 });

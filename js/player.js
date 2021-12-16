@@ -35,7 +35,7 @@ class Player {
     if (this.distancePile.length === 0) return 0;
     return this.distancePile.reduce((distanceDone, card) => {
       return distanceDone + CARD_DISTANCE_VALUE[card.name];
-    });
+    }, 0);
   }
 
   updateSafetyStatus(isCoupFourre) {
