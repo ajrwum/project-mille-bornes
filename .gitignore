@@ -1,2 +1,6 @@
 # Ignore all MacOS .DS_Store files in current and sub-directories
 **/.DS_Store
+**/*.ai
+**/*.jpg
+**/memo-nok.png
+**/main-dummy-data.html
