@@ -125,28 +125,48 @@ function dealCardsToPlayers(cards) {
 
 // to draw a card from the drawing pile to complete player's hand before play
 function drawCardFromDrawingPile(player) {
-  // console.log('--- drawCardFromDrawingPile');    
+  // console.log('--- drawCardFromDrawingPile');
+  
+  // clearing old timeout
+  clearTimeout(timeoutId);
 
-  // resetting message display before new drawing
-  resetMsg();
+  // displaying a message warning for player change
+  displayMsg(`${getCurrentPlayer().name.toUpperCase()}, GET READY FOR YOUR TURN...`);
 
-  if (board.drawingPile.length === 0) {
-    // renewing drawing pile with the discard pile
-    board.renewFromDiscardPile();
-  }
-  // drawing a card, placing it into the playPile (game history) and in the player hand
-  const drawnCard = board.drawingPile.shift();
-  board.playPile.unshift(drawnCard);
-  // placing it also in the adequate player hand
-  player.handPile[DRAWN_CARD_INDEX] = drawnCard;
+  // setting display 'none' for current player while waiting
+  const currentPlayer = getCurrentPlayer();
+  const currentPlayerHandElement = document.querySelector(`#player${currentPlayer.id}-hand`);
+  currentPlayerHandElement.style.display = 'none';
+  // setting display 'none' for second player while waiting
+  const secondPlayer = getSecondPlayer();
+  const secondPlayerHandElement = document.querySelector(`#player${secondPlayer.id}-hand`);
+  secondPlayerHandElement.style.display = 'none';
 
-  // updating dom for both players
-  writePlayerHandHtml(getCurrentPlayer());
-  writePlayerHandHtml(getSecondPlayer());
+  
+  // setting timeout to give time to players to change place
+  timeoutId = setTimeout(() => {
+    // resetting message display before new drawing
+    resetMsg();
+    
+    if (board.drawingPile.length === 0) {
+      // renewing drawing pile with the discard pile
+      board.renewFromDiscardPile();
+    }
+    // drawing a card, placing it into the playPile (game history) and in the player hand
+    const drawnCard = board.drawingPile.shift();
+    board.playPile.unshift(drawnCard);
+    // placing it also in the adequate player hand
+    player.handPile[DRAWN_CARD_INDEX] = drawnCard;
+    
+    // updating dom for both players
+    writePlayerHandHtml(getCurrentPlayer());
+    writePlayerHandHtml(getSecondPlayer());
+    
+    // adding new event listeners to the players' hands
+    listenPlayerHandHtml(getCurrentPlayer());
+    listenPlayerHandHtml(getSecondPlayer());
 
-  // adding new event listeners to the players' hands
-  listenPlayerHandHtml(getCurrentPlayer())
-  listenPlayerHandHtml(getSecondPlayer())
+  }, 4000);
 }
 
 // to highlight the last chosen card
@@ -899,11 +919,11 @@ window.addEventListener('load', () => {
 
   // THE CURRENT PLAYER'S TURN BEGINS HERE
   
-      //   // setting timeout to give time to players to change place
+    //   // setting timeout to give time to players to change place
     //   timeoutId = setTimeout(() => {
       //     drawCardFromDrawingPile(getCurrentPlayer());
       //   }, TIMEOUT_DURATION);
-      // }
+
 
       
   // draw a card for the current player
