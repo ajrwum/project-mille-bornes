@@ -1,5 +1,5 @@
-@import "./_reset.css";
-@import "./constants.css";
+@import url("./_reset.css");
+@import url("./constants.css");
 
 html {
   font-family: sans-serif;
