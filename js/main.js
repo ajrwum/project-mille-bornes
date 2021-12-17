@@ -57,6 +57,11 @@ function getLocalStorage() {
   return gameInitData;
 }
 
+// remove localStorage
+function removeLocalStorage() {
+  localStorage.removeItem(STORAGE_NAME);
+}
+
 // get who is the 1st player (rule states p1 should be the youngest)
 function setPlayers(inputs) {
   if (inputs.player1.age < inputs.player2.age) {
@@ -122,6 +127,10 @@ function dealCardsToPlayers(cards) {
 function drawCardFromDrawingPile(player) {
   console.log('--- drawCardFromDrawingPile');      
 
+  if (board.drawingPile.length === 0) {
+    // renewing drawing pile with the discard pile
+    board.renewFromDiscardPile();
+  }
   // drawing a card, placing it into the playPile (game history) and in the player hand
   const drawnCard = board.drawingPile.shift();
   board.playPile.unshift(drawnCard);
@@ -188,7 +197,7 @@ function playWithSafetyCard(playedCard) {
       console.log("last card on speedPile = hazard");
       if (currentPlayer.speedPile[0].name === 'speed' && playedCard.name === 'ev') {
         console.log("last card on speedPile = speed & safety = ev");
-        hazardCardToDiscard = currentPlayer.speedPile.splice(cardIndexInHandPile, 1)[0];
+        hazardCardToDiscard = currentPlayer.speedPile.splice(0, 1)[0];
       }
     }
   }
@@ -198,7 +207,7 @@ function playWithSafetyCard(playedCard) {
           || (currentPlayer.battlePile[0].name === 'gas' && playedCard.name === 'ft')
           || (currentPlayer.battlePile[0].name === 'tire' && playedCard.name === 'pp')
           || (currentPlayer.battlePile[0].name === 'accident' && playedCard.name === 'da')) {
-        hazardCardToDiscard = currentPlayer.battlePile.splice(cardIndexInHandPile, 1)[0];
+        hazardCardToDiscard = currentPlayer.battlePile.splice(0, 1)[0];
       }
     }
   }
@@ -211,38 +220,48 @@ function playWithSafetyCard(playedCard) {
 // to update the game for the played card to drive
 function isCardOkToDrive(playedCard, currentPlayer) {
   let msg = '';
-  if (currentPlayer.battlePile.length === 0) {
-    // not started, need a drive card (green light) unless safety ev in place
-    if (currentPlayer.isEmergencyVehicle.status) return msg;
+  const isSpeedPileEmpty = currentPlayer.speedPile.length === 0 ? true : false;
+  const isBattlePileEmpty = currentPlayer.battlePile.length === 0 ? true : false;
+
+  // testing the card type
+  if (playedCard.type === 'distance') {
+    if (isBattlePileEmpty) return messages.ERR_BATTLE_PILE_EMPTY;
     else {
-      if (playedCard.name === 'drive') return msg;
-      else return messages.ERR_BATTLE_PILE_EMPTY;
-    }
-  }
-  else {
-    // battlePile activated
-    if (currentPlayer.battlePile[0].type === 'hazard') return messages.ERR_BATTLE_PILE_RED;
-    else {
-      // battlePile currently green
-      if (playedCard.type === 'distance') {
-        if (currentPlayer.speedPile.length > 0 && currentPlayer.speedPile[0].type === 'hazard') {
-          // speed limit in place
-          if (playedCard.name === 'snail' || playedCard.name === 'duck') return msg;
-          else return messages.ERR_SPEED_LIMIT;
+      if (currentPlayer.battlePile[0].type === 'hazard') return messages.ERR_NO_ROLLING_UNDER_ATTACK;
+      else {
+        if (currentPlayer.isEmergencyVehicle.status === true || currentPlayer.battlePile[0].name === 'drive') {
+          if (isSpeedPileEmpty || currentPlayer.speedPile[0].type === 'remedy') {
+            // no speed limit: test on swallow
+            if (playedCard.name === 'swallow')
+              return currentPlayer.countSwallows() < 2 ? msg : messages.ERR_MAX_SWALLOW;
+            else return msg;
+          }
+          else {
+            // speed limit in place
+            switch (playedCard.name) {
+              case 'snail':
+              case 'duck':
+                return msg;
+                break;
+
+              case 'butterfly':
+              case 'rabbit':
+              case 'swallow':
+                return messages.ERR_SPEED_LIMIT;
+                break;
+
+              default:
+                return messages.ERR_ACTION_CARD_NOK;
+                break;
+            }
+          }
         }
-        else {
-          // no speed limit
-          if (playedCard.name === 'swallow') {
-            // testing the swallow count
-            if (currentPlayer.countSwallows() < 2) return msg;
-            else return messages.ERR_MAX_SWALLOW;
-          } 
-          else return msg;
-        }
+        else return messages.ERR_NEED_DRIVE_AFTER_ATTACK;
       }
-      else return messages.ERR_ACTION_CARD_NOK;
     }
   }
+  else return messages.ERR_CARD_NOT_DISTANCE;
+
 }
 function playCardToDrive(playedCard) {
   console.log(`--- playCardToDrive: playedCard`, playedCard);
@@ -263,12 +282,12 @@ function playCardToDrive(playedCard) {
     // removing the card from handPile and saving it into play history
     const cardToMove = currentPlayer.handPile.splice(cardIndexInHandPile, 1)[0];
     board.playPile.unshift(cardToMove);
-    // test for placement location
+    // tests for placement location
     if (playedCard.name === 'drive') {
       // placing it on battlePile
       currentPlayer.battlePile.unshift(cardToMove);
     }
-    else if (playedCard.type === 'distance') {
+    if (playedCard.type === 'distance') {
       // placing it on distancePile
       currentPlayer.distancePile.unshift(cardToMove);
     }
@@ -418,20 +437,116 @@ function playCardToDefend(playedCard) {
 }  
 
 // to update the game for the played card to attack
-function isCardOkToAttack(playedCard, currentPlayer, secondPlayer) {
+function isCardOkToAttack(playedCard, opponent) {
   let msg = '';
-  // ========================================== to do
-  return msg;
+  const isOpponentSpeedPileEmpty = opponent.speedPile.length === 0 ? true : false;
+  const isOpponentBattlePileEmpty = opponent.battlePile.length === 0 ? true : false;
+
+  if (playedCard.type === 'hazard') {
+    switch (playedCard.name) {
+      case 'stop':
+        if (opponent.isEmergencyVehicle.status === true) {
+          return messages.ERR_DRIVE_ATTACK_USELESS;
+        }
+        else {
+          if (!isOpponentBattlePileEmpty) {
+            if (opponent.battlePile[0].type === 'hazard') {
+              return messages.ERR_OPP_ALREADY_UNDER_ATTACK;
+            }
+            else{
+              if (opponent.battlePile[0].name === 'drive') return msg;
+              else return messages.ERR_OPP_NOT_ROLLING;
+            }
+          }
+          else return messages.ERR_OPP_NOT_STARTED;
+        }
+        break;
+
+      case 'speed':
+        if (opponent.isEmergencyVehicle.status === true) {
+          return messages.ERR_SPEED_ATTACK_USELESS;
+        }
+        else {
+          if (isOpponentSpeedPileEmpty) return msg;
+          else {
+            if (!opponent.speedPile[0].type === 'hazard') return msg;
+            else return messages.ERR_OPP_ALREADY_UNDER_ATTACK;
+          }
+        };
+        break;
+
+      case 'gas':
+        if (opponent.isFuelTruck.status === true) {
+          return messages.ERR_GAS_ATTACK_USELESS;
+        }
+        else {
+          if (!isOpponentBattlePileEmpty) {
+            if (opponent.battlePile[0].type === 'hazard') {
+              return messages.ERR_OPP_ALREADY_UNDER_ATTACK;
+            }
+            else{
+              if (opponent.battlePile[0].name === 'drive') return msg;
+              else return messages.ERR_OPP_NOT_ROLLING;
+            }
+          }
+          else return messages.ERR_OPP_NOT_STARTED;
+        }
+        break;
+
+      case 'tire':
+        if (opponent.isPunctureProof.status === true) {
+          return messages.ERR_TIRE_ATTACK_USELESS;
+        }
+        else {
+          if (!isOpponentBattlePileEmpty) {
+            if (opponent.battlePile[0].type === 'hazard') {
+              return messages.ERR_OPP_ALREADY_UNDER_ATTACK;
+            }
+            else{
+              if (opponent.battlePile[0].name === 'drive') return msg;
+              else return messages.ERR_OPP_NOT_ROLLING;
+            }
+          }
+          else return messages.ERR_OPP_NOT_STARTED;
+        }
+        break;
+
+      case 'accident':
+        if (opponent.isDrivingAce.status === true) {
+          return messages.ERR_ACCIDENT_ATTACK_USELESS;
+        }
+        else {
+          if (!isOpponentBattlePileEmpty) {
+            if (opponent.battlePile[0].type === 'hazard') {
+              return messages.ERR_OPP_ALREADY_UNDER_ATTACK;
+            }
+            else{
+              if (opponent.battlePile[0].name === 'drive') return msg;
+              else return messages.ERR_OPP_NOT_ROLLING;
+            }
+          }
+          else return messages.ERR_OPP_NOT_STARTED;
+        }
+        break;
+
+      default:
+        return messages.ERR_ACTION_CARD_NOK;
+        break;
+    }
+  }
+  else return messages.ERR_CARD_NOT_ATTACK;
+
+
 }
 function playCardToAttack(playedCard) {
   console.log(`--- playCardToAttack: playedCard`, playedCard);
 
   const currentPlayer = getCurrentPlayer();
-  const secondPlayer = getSecondPlayer();
+  const opponentPlayer = getSecondPlayer();
   const cardIndexInHandPile = currentPlayer.handPile.indexOf(playedCard);
   console.log(`cardIndexInHandPile`, cardIndexInHandPile);
 
-  const msg = isCardOkToAttack(playedCard, currentPlayer, secondPlayer);
+  const msg = isCardOkToAttack(playedCard, opponentPlayer);
   if (msg) {
     displayMsg(msg);
     // indicating a hold for new card drawing
@@ -443,11 +558,17 @@ function playCardToAttack(playedCard) {
     const cardToMove = currentPlayer.handPile.splice(cardIndexInHandPile, 1)[0];
     board.playPile.unshift(cardToMove);
     // test for placement location
-    
-    // ====================================================== to do
+    if (playedCard.name === 'speed') {
+      // placing it on the opponent's speedPile
+      opponentPlayer.speedPile.unshift(cardToMove);
+    }
+    else {
+      // placing it on the opponent's battlePile
+      opponentPlayer.battlePile.unshift(cardToMove);
+    }
 
     // setting the next player id to the 2nd player
-    nextPlayerId = secondPlayer.id;
+    nextPlayerId = opponentPlayer.id;
   }
 
 }  

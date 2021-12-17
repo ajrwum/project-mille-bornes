@@ -5,10 +5,13 @@ const messages = {
   ERR_NO_SUCH_ACTION: "Please choose an action.",
   ERR_ACTION_CARD_NOK: "Currently, this card cannot be played.",
 
+  ERR_CARD_NOT_DISTANCE: 'The chosen card is not a distance card.',
+  ERR_NO_ROLLING_UNDER_ATTACK: 'You cannot drive while under attack.',
+  ERR_NEED_DRIVE_AFTER_ATTACK: 'You need a green light to resume driving.',
   ERR_BATTLE_PILE_EMPTY: 'You need a drive card to begin rolling.',
   ERR_BATTLE_PILE_RED: 'You cannot drive until your battle pile is green.',
   ERR_MAX_SWALLOW: 'You cannot play more than 2 swallow cards (200).',
-  ERR_SPEED_LIMIT: 'You cannot drive faster than the speed limit.',
+  ERR_SPEED_LIMIT: 'You have to respect the speed limit.',
   
   ERR_CARD_NOT_DEFENSE: 'The chosen card is not a defense card.',
   ERR_DRIVE_REMEDY_USELESS: 'You do not need a drive remedy card.',
@@ -25,6 +28,10 @@ const messages = {
   ERR_TIRE_ATTACK_USELESS: 'You cannot use a tire attack.',
   ERR_ACCIDENT_ATTACK_USELESS: 'You cannot use an accident attack.',
   ERR_NEED_REPAIR_ATTACK: 'You cannot play an attack card on another.',
+
+  ERR_OPP_NOT_STARTED: 'Your opponent has not yet started.',
+  ERR_OPP_ALREADY_UNDER_ATTACK: 'An attack is already in place.',
+  ERR_OPP_NOT_ROLLING: 'Before attack, opponent should roll.',
 
   LOSER_PART1: "SORRY ",
   LOSER_PART2: ", YOU'VE GONE BEYOND ",
