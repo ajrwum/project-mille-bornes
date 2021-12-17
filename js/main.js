@@ -1,6 +1,6 @@
 // all imports
 import { ID_P1, ID_P2, GAME_INIT_DEFAULT, PLAYER_ACTION,
-  STORAGE_NAME,
+  STORAGE_NAME, TURN_WAIT_DURATION,
   HAND_MAX_INDEX, DRAWN_CARD_INDEX, HAND_PILE_MAX_LENGTH,
   CLASS_NAME_HIGHLIGHT, 
   GAME_MAX_DISTANCE} from "./data.js";
@@ -166,7 +166,7 @@ function drawCardFromDrawingPile(player) {
     listenPlayerHandHtml(getCurrentPlayer());
     listenPlayerHandHtml(getSecondPlayer());
 
-  }, 4000);
+  }, TURN_WAIT_DURATION);
 }
 
 // to highlight the last chosen card

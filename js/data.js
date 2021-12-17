@@ -48,4 +48,4 @@ export const HAND_MAX_INDEX = 5; // 6 cards in hand
 export const DRAWN_CARD_INDEX = 6; // last index is used for the drawn card
 export const HAND_PILE_MAX_LENGTH = 7; // hand pile length with the drawn card
 
-
+export const TURN_WAIT_DURATION = 3000;
