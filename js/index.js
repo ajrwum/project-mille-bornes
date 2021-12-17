@@ -11,7 +11,7 @@ let storage = {
 
 // set localStorage
 function setInputsIntoLocalStorage(storage) {
-  console.log(`--- setInputsIntoLocalStorage: storage`, storage);
+  // console.log(`--- setInputsIntoLocalStorage: storage`, storage);
   localStorage.setItem(STORAGE_NAME, JSON.stringify(storage));
 }
 

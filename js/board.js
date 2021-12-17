@@ -11,7 +11,7 @@ class Board {
   }
 
   shuffleCards() {
-    console.log('--- shuffleCards');
+    // console.log('--- shuffleCards');
     // ensuring a deck of cards exists
     if (!this.drawingPile) return;
 
@@ -36,7 +36,7 @@ class Board {
   }
 
   renewFromDiscardPile() {
-    console.log('--- renewFromDiscardPile');
+    // console.log('--- renewFromDiscardPile');
     // checking if there are cards to renew the empty drawing pile
     if (this.drawingPile.length === 0 && this.discardPile.length > 0) {
       // creating a deep copy of the discard pile

@@ -9,7 +9,7 @@ import { Board } from "./board.js";
 import { Player } from "./player.js";
 import { messages, displayMsg, resetMsg } from "./messages.js";
 
-console.log('=== 1000 Bornes - main.js - debug log ===');
+// console.log('=== 1000 Bornes - main.js - debug log ===');
 
 // setting the board
 const board = new Board(cards, GAME_INIT_DEFAULT.mode);
@@ -51,16 +51,16 @@ function getLocalStorage() {
   if (gameInitData === null || gameInitData === undefined) {
     gameInitData = JSON.parse(JSON.stringify(GAME_INIT_DEFAULT));
   }
-  console.log(gameInitData);
+  // console.log(gameInitData);
 
   // returning the necessary data to begin the game
   return gameInitData;
 }
 
 // remove localStorage
-function removeLocalStorage() {
-  localStorage.removeItem(STORAGE_NAME);
-}
+// function removeLocalStorage() {
+//   localStorage.removeItem(STORAGE_NAME);
+// }
 
 // get who is the 1st player (rule states p1 should be the youngest)
 function setPlayers(inputs) {
@@ -109,7 +109,7 @@ function getSecondPlayer() {
 
 // to deal first hand to players
 function dealCardsToPlayers(cards) {
-  console.log('--- dealCardsToPlayers');
+  // console.log('--- dealCardsToPlayers');
   // deal cards one by one to players 1 and 2
   for (let i=0 ; i <= HAND_MAX_INDEX ; i++) {
     // drawing a card, placing it into the playPile (game history) and in p1 hand
@@ -125,7 +125,7 @@ function dealCardsToPlayers(cards) {
 
 // to draw a card from the drawing pile to complete player's hand before play
 function drawCardFromDrawingPile(player) {
-  console.log('--- drawCardFromDrawingPile');    
+  // console.log('--- drawCardFromDrawingPile');    
 
   // resetting message display before new drawing
   resetMsg();
@@ -153,7 +153,6 @@ function drawCardFromDrawingPile(player) {
 function highlightLastChosenCard(target) {
   // update classList to visually show the chosen card
   document.querySelectorAll('#hands .card').forEach(card => {
-    console.log(`card`, card);
     if (card.classList.contains(CLASS_NAME_HIGHLIGHT)) card.classList.remove(CLASS_NAME_HIGHLIGHT);
     if (card === target.closest('div')) card.classList.add(CLASS_NAME_HIGHLIGHT);
   });
@@ -164,16 +163,14 @@ function highlightLastChosenCard(target) {
 
 // to update the game when the played card is a safety card
 function playWithSafetyCard(playedCard) {
-  console.log(`--- playWithSafetyCard: playedCard`, playedCard);
+  // console.log(`--- playWithSafetyCard: playedCard`, playedCard);
   // always allowed whatever the action (drive, defend or attack)
   
   const currentPlayer = getCurrentPlayer();
   const secondPlayer = getSecondPlayer();
   const cardIndexInHandPile = currentPlayer.handPile.indexOf(playedCard);
-  console.log(`cardIndexInHandPile`, cardIndexInHandPile);
   
   
-  console.log('safety card ok');
   // testing the coup fourre considering the last card played
   let isCoupFourre = false;
   if (board.playPile.length > 0 && board.playPile[0].type === 'hazard') {
@@ -190,16 +187,12 @@ function playWithSafetyCard(playedCard) {
   currentPlayer.safetyPile.unshift(safetyCard);
   // - updating safety status for the player
   currentPlayer.updateSafetyStatus(isCoupFourre);
-  console.log(`currentPlayer`, currentPlayer);
   
   // - discarding, if necessary, the nulled hazard card from the player's battle or speed pile
   let hazardCardToDiscard;
   if (currentPlayer.speedPile.length > 0) {
-    console.log("player's speedPile not empty");
     if (currentPlayer.speedPile[0].type === 'hazard') {
-      console.log("last card on speedPile = hazard");
       if (currentPlayer.speedPile[0].name === 'speed' && playedCard.name === 'ev') {
-        console.log("last card on speedPile = speed & safety = ev");
         hazardCardToDiscard = currentPlayer.speedPile.splice(0, 1)[0];
       }
     }
@@ -267,12 +260,11 @@ function isCardOkToDrive(playedCard, currentPlayer) {
 
 }
 function playCardToDrive(playedCard) {
-  console.log(`--- playCardToDrive: playedCard`, playedCard);
+  // console.log(`--- playCardToDrive: playedCard`, playedCard);
 
   const currentPlayer = getCurrentPlayer();
   const secondPlayer = getSecondPlayer();
   const cardIndexInHandPile = currentPlayer.handPile.indexOf(playedCard);
-  console.log(`cardIndexInHandPile`, cardIndexInHandPile);
 
   const msg = isCardOkToDrive(playedCard, currentPlayer);
   if (msg) {
@@ -404,13 +396,11 @@ function isCardOkToDefend(playedCard, currentPlayer) {
   else return messages.ERR_CARD_NOT_DEFENSE;
 }
 function playCardToDefend(playedCard) {
-  console.log(`--- playCardToDefend: playedCard`, playedCard);
+  // console.log(`--- playCardToDefend: playedCard`, playedCard);
   
   const currentPlayer = getCurrentPlayer();
   const secondPlayer = getSecondPlayer();
   const cardIndexInHandPile = currentPlayer.handPile.indexOf(playedCard);
-  console.log(`cardIndexInHandPile`, cardIndexInHandPile);
-  
 
   const msg = isCardOkToDefend(playedCard, currentPlayer);
   if (msg) {
@@ -542,12 +532,11 @@ function isCardOkToAttack(playedCard, opponent) {
 
 }
 function playCardToAttack(playedCard) {
-  console.log(`--- playCardToAttack: playedCard`, playedCard);
+  // console.log(`--- playCardToAttack: playedCard`, playedCard);
 
   const currentPlayer = getCurrentPlayer();
   const opponentPlayer = getSecondPlayer();
   const cardIndexInHandPile = currentPlayer.handPile.indexOf(playedCard);
-  console.log(`cardIndexInHandPile`, cardIndexInHandPile);
 
   const msg = isCardOkToAttack(playedCard, opponentPlayer);
   if (msg) {
@@ -578,12 +567,11 @@ function playCardToAttack(playedCard) {
 
 // to update the game for the played card to discard
 function playCardToDiscard(playedCard) {
-  console.log(`--- playCardToDiscard: playedCard`, playedCard);
+  // console.log(`--- playCardToDiscard: playedCard`, playedCard);
 
   const currentPlayer = getCurrentPlayer();
   const secondPlayer = getSecondPlayer();
   const cardIndexInHandPile = currentPlayer.handPile.indexOf(playedCard);
-  console.log(`cardIndexInHandPile`, cardIndexInHandPile);
 
   // no restriction on this move: any card can be discarded
   // - removing this card from player's hand and saving it into play history
@@ -598,38 +586,37 @@ function playCardToDiscard(playedCard) {
 
 // to check the validity of the combination action + card
 function playActionAndCard(playActionCard) {
+  // console.log(`--- playActionAndCard: playActionCard`, playActionCard);
   isGameOnHold = false;
-  console.log(`--- playActionAndCard: playActionCard`, playActionCard);
 
   const currentPlayer = getCurrentPlayer();
   const secondPlayer = getSecondPlayer();
   const action = playActionCard.playAction;
   const card = playActionCard.playCard;
   const cardIndexInHandPile = currentPlayer.handPile.indexOf(card);
-  console.log(`--- cardIndexInHandPile`, cardIndexInHandPile);
 
   if (action !== null && card !== noCard) {
     // ok to look further
     switch(action) {
       case PLAYER_ACTION.discard:
-        console.log('--- - action discard');
+        // console.log('--- - action discard');
         playCardToDiscard(card);
         break;
         
       case PLAYER_ACTION.drive:
-        console.log('--- - action drive');
+        // console.log('--- - action drive');
         if (card.type === 'safety') playWithSafetyCard(card);
         else playCardToDrive(card);
         break;
         
       case PLAYER_ACTION.defend:
-        console.log('--- - action defend');
+        // console.log('--- - action defend');
         if (card.type === 'safety') playWithSafetyCard(card);
         else playCardToDefend(card);
         break;
 
       case PLAYER_ACTION.attack:
-        console.log('--- - action attack');
+        // console.log('--- - action attack');
         if (card.type === 'safety') playWithSafetyCard(card);
         else playCardToAttack(card);
         break;
@@ -724,7 +711,7 @@ function writeBoardHtml(board) {
 function writePlayerHandHtml(player) {
   const cssSelector = `#player${player.id}-hand`;
   const playerHandElement = document.querySelector(cssSelector);
-  console.log(`playerHandElement`, playerHandElement);
+  // console.log(`--- writePlayerHandHtml: playerHandElement`, playerHandElement);
 
   // testing if there is a drawn card or not
   const drawnCard = player.handPile.length < HAND_PILE_MAX_LENGTH
@@ -776,7 +763,6 @@ function writePlayerHandHtml(player) {
   `;
   playerHandElement.innerHTML = playerHandHtml;
 
-  console.log(`currentPlayerId`, currentPlayerId);
   // hiding the hand not belonging to the current player
   adjustPlayerHandDisplayValue();
 
@@ -797,7 +783,7 @@ function adjustPlayerHandDisplayValue() {
 
 // to add event listeners to the current player's hand (action, card and button)
 function listenPlayerHandHtml(player) {
-  console.log('--- listenPlayerHandHtml');
+  // console.log('--- listenPlayerHandHtml');
 
   // constructing the css selectors for future manipulation
   const actionCssSelector = `#play${player.id} .action`;
@@ -814,7 +800,6 @@ function listenPlayerHandHtml(player) {
     
     // updating the actionCard object accordingly
     currentActionCard.playAction = PLAYER_ACTION[actionId];
-    console.log(`currentActionCard.playAction`, currentActionCard.playAction);
 
     // updating the button label
     const btnElement = document.querySelector(btnCssSelector);
@@ -825,7 +810,7 @@ function listenPlayerHandHtml(player) {
   // adding event listeners to each card of the players' hands
   document.querySelectorAll(cardsCssSelector).forEach((card) => {
     card.addEventListener('click', (event) => {
-      console.log(`event.target`, event.target);
+      // console.log(`- cards: add event - event.target`, event.target);
 
       // highlight card (checking previous choice gets un-highlighted)
       highlightLastChosenCard(event.target);
@@ -835,14 +820,13 @@ function listenPlayerHandHtml(player) {
   
   // adding event listener to the play button for both players
   document.querySelector(btnCssSelector).addEventListener('click', (event) => {
-    console.log(`event.target`, event.target, 'player', player);
+    // console.log(`- button: add event - event.target`, event.target, 'player', player);
 
     // check the validity of the combination action + card (returning the nextPlayerId)
     playActionAndCard(currentActionCard);
     if (!isGameOnHold) {
       // setting the game for next round
       currentPlayerId = nextPlayerId;
-      console.log(`player`, player);
   
       // no message currently displayed, drawing a new card
       drawCardFromDrawingPile(getCurrentPlayer());
@@ -854,7 +838,7 @@ function listenPlayerHandHtml(player) {
 
 // to test the end of game
 function isGameFinished() {
-  console.log(`--- isGameFinished: gameMode`, board.gameMode);
+  // console.log(`--- isGameFinished: gameMode`, board.gameMode);
 
   // getting players
   const currentPlayer = getCurrentPlayer();
@@ -890,6 +874,10 @@ window.addEventListener('load', () => {
   // updating board and players from inputs
   const gameInputs = getLocalStorage();
   board.gameMode = gameInputs.mode.name;
+
+  // updating the header to reflect the game mode
+  document.querySelector('header p').textContent = `${GAME_MAX_DISTANCE[board.gameMode]} BORNES`;
+
   // defining 1st player and updating players accordingly
   setPlayers(gameInputs);
   
@@ -920,7 +908,7 @@ window.addEventListener('load', () => {
       
   // draw a card for the current player
   if (!isGameOnHold) {
-    console.log(`--- window.load: currentActionCard`, currentActionCard);
+    // console.log(`--- window.load: currentActionCard`, currentActionCard);
     // no msg displayed at the moment, drawing a new card
     drawCardFromDrawingPile(getCurrentPlayer());
   } 

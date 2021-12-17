@@ -17,13 +17,6 @@ class Player {
     this.isPunctureProof = {status: false, coupFourre: false}
   }
 
-  // hasDrivingAce() {}
-  // hasEmergencyVehicle() {}
-  // hasFuelTruck() {}
-  // hasPunctureProof() {}
-  // checkCoupFourre() {}
-  // setCoupFourre() {}
-
   countSwallows() {
     if (this.distancePile.length === 0) return 0;
     return this.distancePile.filter(distanceCard => {
@@ -40,9 +33,9 @@ class Player {
 
   updateSafetyStatus(isCoupFourre) {
     if (this.safetyPile.length > 0) {
-      console.log(`this.safetyPile`, this.safetyPile, this.safetyPile.length);
+      // console.log(`this.safetyPile`, this.safetyPile, this.safetyPile.length);
       for (const card of this.safetyPile) {
-        console.log(`--- updateSafetyStatus: card`, card);
+        // console.log(`--- updateSafetyStatus: card`, card);
         switch (card.name) {
           case 'ev':
             this.isEmergencyVehicle.status = true;
@@ -61,7 +54,7 @@ class Player {
             this.isDrivingAce.coupFourre = isCoupFourre;
             break;
           default:
-            console.log('No such safety card!');
+            // console.log('No such safety card!');
             break;
         }
       }

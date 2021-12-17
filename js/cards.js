@@ -1,4 +1,4 @@
-/**
+/** CARDS TYPES & CARD NAMES BY TYPE
 DISTANCE
 snail
 duck
