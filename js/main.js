@@ -125,7 +125,10 @@ function dealCardsToPlayers(cards) {
 
 // to draw a card from the drawing pile to complete player's hand before play
 function drawCardFromDrawingPile(player) {
-  console.log('--- drawCardFromDrawingPile');      
+  console.log('--- drawCardFromDrawingPile');    
+
+  // resetting message display before new drawing
+  resetMsg();
 
   if (board.drawingPile.length === 0) {
     // renewing drawing pile with the discard pile
